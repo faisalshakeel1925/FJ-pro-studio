@@ -1,2 +1,435 @@
-cat /mnt/user-data/outputs/index_final.html
-/mnt/user-data/outputs/index_complete.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FJ Pro AI Studio - Global AI Video Creator</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#08090f;--surface:#10121c;--card:#161925;--border:#232640;--violet:#7c5cfc;--violet2:#a78bfa;--amber:#f59e0b;--text:#e8eaf0;--muted:#6b7280;--danger:#ef4444;--success:#10b981;--grad:linear-gradient(135deg,#7c5cfc,#a78bfa,#f59e0b)}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;min-height:100vh}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.page{display:none;min-height:100vh}.page.active{display:block}.hidden{display:none!important}
+.shell{display:flex;min-height:100vh}
+.sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);padding:24px 16px;display:flex;flex-direction:column;gap:6px;position:fixed;top:0;left:0;height:100vh;z-index:100;overflow-y:auto}
+.sidebar-logo{font-size:20px;font-weight:900;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:28px}
+.nav-btn{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;color:var(--muted);border:none;background:transparent;text-align:left;width:100%;transition:all .15s}
+.nav-btn:hover{background:var(--card);color:var(--text)}
+.nav-btn.active{background:rgba(124,92,252,.15);color:var(--violet2)}
+.nav-icon{font-size:17px;width:22px}
+.spacer{flex:1}
+.nav-logout{color:var(--danger)!important}
+.main{margin-left:220px;padding:36px 40px;flex:1;overflow-y:auto}
+.page-title{font-size:26px;font-weight:900;margin-bottom:8px}
+.page-sub{color:var(--muted);font-size:14px;margin-bottom:28px}
+
+/* DASHBOARD */
+.banner{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 32px;margin-bottom:28px;background-image:radial-gradient(ellipse at 80% 50%,rgba(124,92,252,.12),transparent 70%)}
+.banner-label{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--violet2);font-weight:600;margin-bottom:8px}
+.banner-title{font-size:22px;font-weight:900;margin-bottom:6px}
+.banner-sub{color:var(--muted);font-size:14px}
+.tags{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.tag{background:rgba(124,92,252,.18);border:1px solid rgba(124,92,252,.3);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--violet2);font-weight:600}
+.dash-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.dash-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;cursor:pointer;transition:all .2s}
+.dash-card:hover{border-color:var(--violet);transform:translateY(-2px)}
+.dash-icon{font-size:28px;margin-bottom:12px}
+.dash-title{font-weight:700;font-size:16px;margin-bottom:4px}
+.dash-desc{color:var(--muted);font-size:13px;line-height:1.5}
+
+/* SETTINGS */
+.settings-section{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:20px}
+.settings-title{font-weight:700;font-size:15px;margin-bottom:18px;color:var(--violet2)}
+.setting-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);gap:12px}
+.setting-row:last-child{border-bottom:none}
+.setting-info{flex:1}
+.setting-label{font-size:14px;font-weight:600}
+.setting-desc{color:var(--muted);font-size:12px;margin-top:2px}
+.input,.select{background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:13px;outline:none;min-width:160px}
+.select{cursor:pointer;appearance:none}
+.progress-bar{width:100%;height:8px;background:var(--surface);border-radius:4px;overflow:hidden;margin-top:8px}
+.progress-fill{height:100%;background:var(--grad);border-radius:4px;width:45%}
+.progress-text{font-size:12px;color:var(--muted);margin-top:4px}
+.toggle{width:44px;height:24px;background:var(--border);border-radius:12px;position:relative;cursor:pointer;border:none;transition:background .2s}
+.toggle.on{background:var(--violet)}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:left .2s}
+.toggle.on::after{left:23px}
+.btn-primary{padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;border:none;cursor:pointer;background:var(--grad);color:#fff;transition:opacity .2s}
+.btn-primary:hover{opacity:.9}
+.btn-ghost{padding:10px 16px;border-radius:8px;font-size:13px;font-weight:700;border:1.5px solid var(--border);background:transparent;color:var(--text);cursor:pointer;transition:all .2s}
+.btn-ghost:hover{border-color:var(--violet2);background:rgba(124,92,252,.08)}
+.btn-danger{padding:9px 14px;border-radius:8px;font-size:13px;font-weight:700;border:1.5px solid var(--danger);background:transparent;color:var(--danger);cursor:pointer}
+.plan-badge{background:rgba(16,185,129,.15);color:var(--success);padding:4px 12px;border-radius:8px;font-size:12px;font-weight:700}
+.warning-box{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:10px;padding:12px 16px;margin-top:16px;font-size:12px;color:#fca5a5;line-height:1.6}
+.info-box{background:rgba(124,92,252,.08);border:1px solid rgba(124,92,252,.25);border-radius:10px;padding:12px 16px;margin-top:16px;font-size:12px;color:var(--violet2);line-height:1.6}
+.links-row{margin-top:16px;padding-top:16px;border-top:1px solid var(--border);display:flex;gap:16px;flex-wrap:wrap}
+.link-item{color:var(--muted);font-size:12px;text-decoration:none;transition:color .2s}
+.link-item:hover{color:var(--violet2)}
+
+/* CREATE VIDEO */
+.create-grid{display:grid;grid-template-columns:1fr 300px;gap:24px}
+.form-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:18px}
+.form-title{font-weight:700;font-size:15px;margin-bottom:18px;color:var(--violet2)}
+.form-row{margin-bottom:18px}
+.form-row label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:7px}
+.textarea{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:14px;outline:none;resize:vertical;min-height:100px}
+.textarea:focus{border-color:var(--violet)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{padding:7px 14px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);transition:all .15s}
+.chip.on{border-color:var(--violet);background:rgba(124,92,252,.15);color:var(--violet2)}
+.action-row{display:flex;gap:12px}
+.gen-btn{flex:2;padding:14px;border-radius:12px;font-size:15px;font-weight:700;border:none;cursor:pointer;background:var(--grad);color:#fff}
+.gen-btn:hover{opacity:.9}
+.save-btn{flex:1;padding:14px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;background:var(--card);border:1.5px solid var(--violet);color:var(--violet2)}
+.preview-panel{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;position:sticky;top:30px}
+.preview-title{font-weight:700;font-size:14px;margin-bottom:14px;color:var(--violet2)}
+.preview-screen{background:#000;border-radius:10px;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);margin-bottom:14px;color:var(--muted);font-size:32px}
+.info-row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px}
+.info-row span:first-child{color:var(--muted)}
+.info-row span:last-child{font-weight:600}
+
+/* TOAST */
+.toast{position:fixed;bottom:30px;right:30px;background:var(--success);color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:9999;animation:slideUp .3s}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(ellipse at 60% 20%,#1a1040,#08090f)}
+.login-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:40px;width:100%;max-width:420px}
+.logo{text-align:center;margin-bottom:32px}
+.logo h1{font-size:28px;font-weight:900;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.logo p{color:var(--muted);font-size:13px;margin-top:4px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.field input{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:15px;outline:none}
+.field input:focus{border-color:var(--violet)}
+.btn-full{width:100%;padding:13px;border-radius:10px;font-size:15px;font-weight:700;border:none;cursor:pointer}
+.btn-full.primary{background:var(--grad);color:#fff}
+.btn-full.primary:hover{opacity:.9}
+.btn-full.ghost{background:transparent;border:1.5px solid var(--border);color:var(--violet2);margin-top:10px}
+.divider{text-align:center;color:var(--muted);font-size:12px;margin:14px 0}
+@media(max-width:900px){
+  .sidebar{width:60px;padding:16px 10px}
+  .sidebar-logo,.nav-btn span:not(.nav-icon){display:none}
+  .nav-btn{justify-content:center}
+  .main{margin-left:60px;padding:24px 16px}
+  .dash-grid{grid-template-columns:1fr}
+  .create-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="page active" id="page-login">
+<div class="login-wrap">
+  <div class="login-box">
+    <div class="logo"><h1>FJ Pro AI Studio</h1><p>Global AI Video Creator</p></div>
+    <div id="signup-name" class="field hidden">
+      <label>Full Name</label>
+      <input type="text" id="input-name" placeholder="Enter your name">
+    </div>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="input-email" placeholder="email@example.com">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="input-password" placeholder="••••••••">
+    </div>
+    <button class="btn-full primary" onclick="doLogin()">🔐 Login</button>
+    <div class="divider">— or —</div>
+    <button class="btn-full ghost" onclick="toggleAuthMode()">Create Account →</button>
+  </div>
+</div>
+</div>
+
+<!-- APP -->
+<div class="page" id="page-app">
+<div class="shell">
+  <nav class="sidebar">
+    <div class="sidebar-logo">FJ Pro</div>
+    <button class="nav-btn active" id="nav-dash" onclick="showPage('dashboard')">
+      <span class="nav-icon">🏠</span><span>Dashboard</span>
+    </button>
+    <button class="nav-btn" id="nav-create" onclick="showPage('create')">
+      <span class="nav-icon">🎬</span><span>Create</span>
+    </button>
+    <button class="nav-btn" id="nav-settings" onclick="showPage('settings')">
+      <span class="nav-icon">⚙️</span><span>Settings</span>
+    </button>
+    <div class="spacer"></div>
+    <button class="nav-btn nav-logout" onclick="doLogout()">
+      <span class="nav-icon">🚪</span><span>Logout</span>
+    </button>
+  </nav>
+
+  <main class="main">
+
+    <!-- DASHBOARD PAGE -->
+    <div id="page-dashboard" class="page-content">
+      <div class="page-title">Dashboard</div>
+      <div class="page-sub">Welcome to FJ Pro AI Studio</div>
+      <div class="banner">
+        <div class="banner-label">AI Video Studio</div>
+        <div class="banner-title">Create AI Videos for the World 🌍</div>
+        <div class="banner-sub">Cartoon, Anime, 3D — multilingual voice, subtitles & global export</div>
+        <div class="tags">
+          <span class="tag">Runway ML</span><span class="tag">Pika Labs</span><span class="tag">Luma AI</span>
+          <span class="tag">12+ Languages</span><span class="tag">4K Export</span><span class="tag">GDPR Ready</span>
+        </div>
+      </div>
+      <div class="dash-grid">
+        <div class="dash-card" onclick="showPage('create')">
+          <div class="dash-icon">🎬</div>
+          <div class="dash-title">New Video Project</div>
+          <div class="dash-desc">Write a prompt, choose style, add voice in any language and generate.</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-icon">💾</div>
+          <div class="dash-title">Saved Projects</div>
+          <div class="dash-desc">0 projects saved. Create your first video to get started!</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-icon">🖼️</div>
+          <div class="dash-title">Video Gallery</div>
+          <div class="dash-desc">View your completed videos, download and share globally.</div>
+        </div>
+        <div class="dash-card" onclick="showPage('settings')">
+          <div class="dash-icon">⚙️</div>
+          <div class="dash-title">Settings</div>
+          <div class="dash-desc">Language, timezone, currency, privacy & API configuration.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CREATE VIDEO PAGE -->
+    <div id="page-create" class="page-content hidden">
+      <div class="page-title">🎬 Create Video</div>
+      <div class="page-sub">Write a prompt and generate your AI video</div>
+      <div class="create-grid">
+        <div>
+          <div class="form-card">
+            <div class="form-title">📝 Project Details</div>
+            <div class="form-row">
+              <label>Project Name</label>
+              <input class="input" id="v-name" placeholder="My first video...">
+            </div>
+            <div class="form-row">
+              <label>Video Prompt</label>
+              <textarea class="textarea" id="v-prompt" placeholder="Example: Show 5 ways to earn money online in Pakistan in cartoon style..."></textarea>
+            </div>
+          </div>
+          <div class="form-card">
+            <div class="form-title">🎨 Video Style</div>
+            <div class="chips">
+              <button class="chip on" onclick="selectChip(this)">🎨 Cartoon</button>
+              <button class="chip" onclick="selectChip(this)">⛩️ Anime</button>
+              <button class="chip" onclick="selectChip(this)">💠 3D</button>
+            </div>
+          </div>
+          <div class="form-card">
+            <div class="form-title">🎙️ Voice & Language</div>
+            <div class="form-row">
+              <label>Voice Language</label>
+              <div class="chips">
+                <button class="chip on" onclick="selectChip(this)">🇵🇰 Urdu</button>
+                <button class="chip" onclick="selectChip(this)">🇺🇸 English</button>
+                <button class="chip" onclick="selectChip(this)">🇸🇦 Arabic</button>
+                <button class="chip" onclick="selectChip(this)">🇪🇸 Spanish</button>
+              </div>
+            </div>
+          </div>
+          <div class="form-card">
+            <div class="form-title">📐 Quality Settings</div>
+            <div class="form-row">
+              <label>Resolution</label>
+              <div class="chips">
+                <button class="chip" onclick="selectChip(this)">720p</button>
+                <button class="chip on" onclick="selectChip(this)">1080p</button>
+                <button class="chip" onclick="selectChip(this)">4K</button>
+              </div>
+            </div>
+          </div>
+          <div class="action-row">
+            <button class="gen-btn" onclick="generateVideo()">⚡ Generate Video</button>
+            <button class="save-btn" onclick="showToast('Project saved!')">💾 Save</button>
+          </div>
+        </div>
+        <div class="preview-panel">
+          <div class="preview-title">👁️ Preview</div>
+          <div class="preview-screen">🎬</div>
+          <div class="info-row"><span>Style</span><span>🎨 Cartoon</span></div>
+          <div class="info-row"><span>Voice</span><span>🇵🇰 Urdu</span></div>
+          <div class="info-row"><span>Resolution</span><span>1080p</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS PAGE -->
+    <div id="page-settings" class="page-content hidden">
+      <div class="page-title">⚙️ Settings</div>
+      <div class="page-sub">Complete configuration for global use</div>
+
+      <div class="settings-section">
+        <div class="settings-title">👤 Account & Billing</div>
+        <div class="setting-row">
+          <div class="setting-info"><div class="setting-label">Email</div><div class="setting-desc" id="user-email">-</div></div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info"><div class="setting-label">Plan</div><div class="setting-desc">Current subscription</div></div>
+          <span class="plan-badge">Free</span>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info"><div class="setting-label">Monthly Usage</div><div class="setting-desc">Videos generated this month</div></div>
+        </div>
+        <div style="margin-left:0;margin-top:8px">
+          <div class="progress-bar"><div class="progress-fill"></div></div>
+          <div class="progress-text">45 / 100 videos used (45%)</div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-title">🎙️ Studio Preferences</div>
+        <div class="setting-row">
+          <div class="setting-info"><div class="setting-label">Dark Mode</div><div class="setting-desc">Easy on eyes</div></div>
+          <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info"><div class="setting-label">Auto 4K Export</div><div class="setting-desc">Generate all videos in 4K</div></div>
+          <button class="toggle" onclick="this.classList.toggle('on')"></button>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info"><div class="setting-label">Default Subtitle Language</div><div class="setting-desc">Auto-applied to all videos</div></div>
+          <select class="select">
+            <option>🇵🇰 Urdu</option><option>🇺🇸 English</option><option>🇸🇦 Arabic</option><option>🇪🇸 Spanish</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-title">🔑 AI APIs</div>
+        <div class="setting-row">
+          <div class="setting-info"><div class="setting-label">Runway ML API Key</div><div class="setting-desc">Best quality video generation</div></div>
+          <input class="input" placeholder="sk-...">
+        </div>
+        <div class="setting-row">
+          <div class="setting-info"><div class="setting-label">ElevenLabs Voice API</div><div class="setting-desc">Multilingual voice generation</div></div>
+          <input class="input" placeholder="el-...">
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-title">🗄️ Database</div>
+        <div class="setting-row">
+          <div class="setting-info"><div class="setting-label">Supabase URL</div><div class="setting-desc">Your project endpoint</div></div>
+          <input class="input" placeholder="https://...supabase.co">
+        </div>
+        <div class="setting-row">
+          <div class="setting-info"><div class="setting-label">Anon Key</div><div class="setting-desc">Public key</div></div>
+          <input class="input" placeholder="eyJ...">
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-title">🔒 Privacy & Compliance</div>
+        <div class="setting-row">
+          <div class="setting-info"><div class="setting-label">Content Safety Filter</div><div class="setting-desc">Block explicit content</div></div>
+          <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info"><div class="setting-label">Export My Data</div><div class="setting-desc">Download as JSON</div></div>
+          <button class="btn-ghost" onclick="showToast('Data exported!')">📥 Export</button>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info"><div class="setting-label">Delete Account</div><div class="setting-desc">Permanently remove everything</div></div>
+          <button class="btn-danger" onclick="confirmDelete()">🗑️ Delete</button>
+        </div>
+        <div class="warning-box">
+          ⚠️ GDPR & CCPA: You have the right to access, export, and delete your personal data. Contact: privacy@fjprostudio.com
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script>
+var authMode = 'login';
+var currentUser = '';
+
+function toggleAuthMode(){
+  authMode = authMode === 'login' ? 'signup' : 'login';
+  var nf = document.getElementById('signup-name');
+  var btn = document.querySelector('.btn-full.primary');
+  var gbtn = document.querySelector('.btn-full.ghost');
+  if(authMode === 'signup'){
+    nf.classList.remove('hidden');
+    btn.textContent = '✨ Create Account';
+    gbtn.textContent = '← Back to Login';
+  } else {
+    nf.classList.add('hidden');
+    btn.textContent = '🔐 Login';
+    gbtn.textContent = 'Create Account →';
+  }
+}
+
+function doLogin(){
+  var e = document.getElementById('input-email').value;
+  var p = document.getElementById('input-password').value;
+  if(!e || !p){showToast('Enter email and password');return;}
+  currentUser = e;
+  document.getElementById('user-email').textContent = e;
+  document.getElementById('page-login').classList.remove('active');
+  document.getElementById('page-app').classList.add('active');
+  showPage('dashboard');
+  showToast('Welcome to FJ Pro! ✓');
+}
+
+function doLogout(){
+  document.getElementById('page-app').classList.remove('active');
+  document.getElementById('page-login').classList.add('active');
+  showToast('Logged out');
+}
+
+function showPage(name){
+  var pages = ['dashboard','create','settings'];
+  pages.forEach(function(p){
+    var el = document.getElementById('page-'+p);
+    var nav = document.getElementById('nav-'+p);
+    if(el) el.classList.add('hidden');
+    if(nav) nav.classList.remove('active');
+  });
+  var page = document.getElementById('page-'+name);
+  var nav = document.getElementById('nav-'+name);
+  if(page) page.classList.remove('hidden');
+  if(nav) nav.classList.add('active');
+}
+
+function selectChip(el){
+  el.parentElement.querySelectorAll('.chip').forEach(function(c){c.classList.remove('on')});
+  el.classList.add('on');
+}
+
+function generateVideo(){
+  showToast('Video generation starting... (Connect Runway API for real videos)');
+}
+
+function confirmDelete(){
+  if(confirm('Delete account & all data permanently?')){
+    showToast('Account deletion requested');
+  }
+}
+
+function showToast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.remove('hidden');
+  setTimeout(function(){t.classList.add('hidden')}, 3000);
+}
+</script>
+</body>
+</html>
