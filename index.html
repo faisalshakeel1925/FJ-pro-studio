@@ -302,4 +302,2450 @@
   </script>
 
 </body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FJ Pro AI Studio - Global AI Video Creator</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+  </script>
+  <style>
+    /* ===== FULL STYLES ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    :root {
+      --bg: #08090f;
+      --surface: #10121c;
+      --card: #161925;
+      --border: #232640;
+      --violet: #7c5cfc;
+      --violet2: #a78bfa;
+      --amber: #f59e0b;
+      --text: #e8eaf0;
+      --muted: #6b7280;
+      --danger: #ef4444;
+      --success: #10b981;
+      --grad: linear-gradient(135deg, #7c5cfc, #a78bfa, #f59e0b);
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+    }
+    .page {
+      display: none;
+      min-height: 100vh;
+    }
+    .page.active {
+      display: block;
+    }
+    .hidden {
+      display: none !important;
+    }
+
+    /* ===== SIDEBAR ===== */
+    .shell {
+      display: flex;
+      min-height: 100vh;
+    }
+    .sidebar {
+      width: 220px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      z-index: 100;
+      overflow-y: auto;
+    }
+    .sidebar-logo {
+      font-size: 20px;
+      font-weight: 900;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 28px;
+    }
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--muted);
+      border: none;
+      background: transparent;
+      text-align: left;
+      width: 100%;
+      transition: all 0.15s;
+    }
+    .nav-btn:hover {
+      background: var(--card);
+      color: var(--text);
+    }
+    .nav-btn.active {
+      background: rgba(124, 92, 252, 0.15);
+      color: var(--violet2);
+    }
+    .nav-icon {
+      font-size: 17px;
+      width: 22px;
+    }
+    .spacer {
+      flex: 1;
+    }
+    .nav-logout {
+      color: var(--danger) !important;
+    }
+    .main {
+      margin-left: 220px;
+      padding: 36px 40px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    /* ===== COMMON ===== */
+    .page-title {
+      font-size: 26px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+    .page-sub {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 28px;
+    }
+
+    /* ===== BANNER ===== */
+    .banner {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 32px;
+      margin-bottom: 28px;
+      background-image: radial-gradient(ellipse at 80% 50%, rgba(124, 92, 252, 0.12), transparent 70%);
+    }
+    .banner-title {
+      font-size: 22px;
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+    .banner-sub {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .tags {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+    .tag {
+      background: rgba(124, 92, 252, 0.18);
+      border: 1px solid rgba(124, 92, 252, 0.3);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px;
+      color: var(--violet2);
+      font-weight: 600;
+    }
+
+    /* ===== DASHBOARD CARDS ===== */
+    .dash-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+    .dash-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .dash-card:hover {
+      border-color: var(--violet);
+      transform: translateY(-2px);
+    }
+    .dash-icon {
+      font-size: 28px;
+      margin-bottom: 12px;
+    }
+    .dash-title {
+      font-weight: 700;
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+    .dash-desc {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    /* ===== CREATE ===== */
+    .create-grid {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 24px;
+    }
+    .form-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 18px;
+    }
+    .form-title {
+      font-weight: 700;
+      font-size: 15px;
+      margin-bottom: 18px;
+      color: var(--violet2);
+    }
+    .form-row {
+      margin-bottom: 18px;
+    }
+    .form-row label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 7px;
+    }
+    .input,
+    .select {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      color: var(--text);
+      font-size: 13px;
+      outline: none;
+      width: 100%;
+    }
+    .textarea {
+      width: 100%;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+      resize: vertical;
+      min-height: 100px;
+    }
+    .chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .chip {
+      padding: 7px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      transition: all 0.15s;
+    }
+    .chip.on {
+      border-color: var(--violet);
+      background: rgba(124, 92, 252, 0.15);
+      color: var(--violet2);
+    }
+    .chip.multi {
+      border-color: var(--success);
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+    }
+    .action-row {
+      display: flex;
+      gap: 12px;
+    }
+    .gen-btn {
+      flex: 2;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      background: var(--grad);
+      color: #fff;
+    }
+    .gen-btn:hover {
+      opacity: 0.9;
+    }
+    .save-btn {
+      flex: 1;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      background: var(--card);
+      border: 1.5px solid var(--violet);
+      color: var(--violet2);
+    }
+    .preview-panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      position: sticky;
+      top: 30px;
+    }
+    .preview-title {
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 14px;
+      color: var(--violet2);
+    }
+    .preview-screen {
+      background: #000;
+      border-radius: 10px;
+      aspect-ratio: 16/9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border);
+      margin-bottom: 14px;
+      color: var(--muted);
+      font-size: 32px;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .info-row span:first-child {
+      color: var(--muted);
+    }
+    .info-row span:last-child {
+      font-weight: 600;
+    }
+
+    /* ===== GALLERY ===== */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .gallery-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+    .gallery-item .video-icon {
+      font-size: 48px;
+      margin-bottom: 8px;
+    }
+    .gallery-item .video-name {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .gallery-item .video-date {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* ===== SETTINGS ===== */
+    .settings-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .settings-title {
+      font-weight: 700;
+      font-size: 15px;
+      margin-bottom: 18px;
+      color: var(--violet2);
+    }
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      gap: 12px;
+    }
+    .setting-row:last-child {
+      border-bottom: none;
+    }
+    .setting-info {
+      flex: 1;
+    }
+    .setting-label {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .setting-desc {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 2px;
+    }
+    .toggle {
+      width: 44px;
+      height: 24px;
+      background: var(--border);
+      border-radius: 12px;
+      position: relative;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s;
+    }
+    .toggle.on {
+      background: var(--violet);
+    }
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      transition: left 0.2s;
+    }
+    .toggle.on::after {
+      left: 23px;
+    }
+    .btn-primary {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      background: var(--grad);
+      color: #fff;
+      transition: opacity 0.2s;
+    }
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+    .btn-ghost {
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-ghost:hover {
+      border-color: var(--violet2);
+      background: rgba(124, 92, 252, 0.08);
+    }
+    .btn-danger {
+      padding: 9px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      border: 1.5px solid var(--danger);
+      background: transparent;
+      color: var(--danger);
+      cursor: pointer;
+    }
+    .plan-badge {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+      padding: 4px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .warning-box {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-top: 16px;
+      font-size: 12px;
+      color: #fca5a5;
+      line-height: 1.6;
+    }
+
+    /* ===== TOAST ===== */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: var(--success);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 9999;
+      animation: slideUp 0.3s;
+    }
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ===== LOGIN ===== */
+    .login-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: radial-gradient(ellipse at 60% 20%, #1a1040, #08090f);
+    }
+    .login-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      width: 100%;
+      max-width: 420px;
+    }
+    .logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .logo h1 {
+      font-size: 28px;
+      font-weight: 900;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .logo p {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .sidebar {
+        width: 60px;
+        padding: 16px 10px;
+      }
+      .sidebar-logo,
+      .nav-btn span:not(.nav-icon) {
+        display: none;
+      }
+      .nav-btn {
+        justify-content: center;
+      }
+      .main {
+        margin-left: 60px;
+        padding: 24px 16px;
+      }
+      .dash-grid {
+        grid-template-columns: 1fr;
+      }
+      .create-grid {
+        grid-template-columns: 1fr;
+      }
+      .gallery-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== LOGIN PAGE ===== -->
+  <div class="page active" id="page-login">
+    <div class="login-wrap">
+      <div class="login-box">
+        <div class="logo">
+          <h1>FJ Pro AI Studio</h1>
+          <p>Global AI Video Creator</p>
+        </div>
+        <div id="signup-name" class="field hidden">
+          <label>Full Name</label>
+          <input type="text" id="input-name" placeholder="Enter your name">
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="input-email" placeholder="email@example.com">
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="input-password" placeholder="••••••••">
+        </div>
+        <button class="btn-full primary" onclick="doLogin()">🔐 Login</button>
+        <div class="divider">— or —</div>
+        <button class="btn-full ghost" onclick="toggleAuthMode()">Create Account →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== APP ===== -->
+  <div class="page" id="page-app">
+    <div class="shell">
+      <nav class="sidebar">
+        <div class="sidebar-logo">FJ Pro</div>
+        <button class="nav-btn active" id="nav-dashboard" onclick="showPage('dashboard')">
+          <span class="nav-icon">🏠</span><span>Dashboard</span>
+        </button>
+        <button class="nav-btn" id="nav-create" onclick="showPage('create')">
+          <span class="nav-icon">🎬</span><span>Create</span>
+        </button>
+        <button class="nav-btn" id="nav-gallery" onclick="showPage('gallery')">
+          <span class="nav-icon">🖼️</span><span>Gallery</span>
+        </button>
+        <button class="nav-btn" id="nav-settings" onclick="showPage('settings')">
+          <span class="nav-icon">⚙️</span><span>Settings</span>
+        </button>
+        <div class="spacer"></div>
+        <button class="nav-btn nav-logout" onclick="doLogout()">
+          <span class="nav-icon">🚪</span><span>Logout</span>
+        </button>
+      </nav>
+
+      <main class="main">
+
+        <!-- ===== DASHBOARD ===== -->
+        <div id="page-dashboard" class="page-content">
+          <div class="page-title">Dashboard</div>
+          <div class="page-sub" id="welcome-msg">Welcome to FJ Pro AI Studio</div>
+          <div class="banner">
+            <div class="banner-title">Create AI Videos for the World 🌍</div>
+            <div class="banner-sub">Cartoon, Anime, 3D — multilingual voice, subtitles &amp; global export</div>
+            <div class="tags">
+              <span class="tag">Runway ML</span>
+              <span class="tag">Pika Labs</span>
+              <span class="tag">Luma AI</span>
+              <span class="tag">12+ Languages</span>
+              <span class="tag">4K Export</span>
+              <span class="tag">GDPR Ready</span>
+            </div>
+          </div>
+          <div class="dash-grid">
+            <div class="dash-card" onclick="showPage('create')">
+              <div class="dash-icon">🎬</div>
+              <div class="dash-title">New Video Project</div>
+              <div class="dash-desc">Write a prompt, choose style, add voice and generate.</div>
+            </div>
+            <div class="dash-card" onclick="showPage('gallery')">
+              <div class="dash-icon">💾</div>
+              <div class="dash-title">Saved Projects</div>
+              <div class="dash-desc" id="project-count">0 projects saved</div>
+            </div>
+            <div class="dash-card" onclick="showPage('gallery')">
+              <div class="dash-icon">🖼️</div>
+              <div class="dash-title">Video Gallery</div>
+              <div class="dash-desc">View your completed videos</div>
+            </div>
+            <div class="dash-card" onclick="showPage('settings')">
+              <div class="dash-icon">⚙️</div>
+              <div class="dash-title">Settings</div>
+              <div class="dash-desc">Configure API keys &amp; preferences</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== CREATE ===== -->
+        <div id="page-create" class="page-content hidden">
+          <div class="page-title">🎬 Create Video</div>
+          <div class="page-sub">Write a prompt and generate your AI video</div>
+          <div class="create-grid">
+            <div>
+              <div class="form-card">
+                <div class="form-title">📝 Project Details</div>
+                <div class="form-row">
+                  <label>Project Name</label>
+                  <input class="input" id="v-name" placeholder="My first video...">
+                </div>
+                <div class="form-row">
+                  <label>Video Prompt</label>
+                  <textarea class="textarea" id="v-prompt" placeholder="Describe your video..."></textarea>
+                </div>
+              </div>
+              <div class="form-card">
+                <div class="form-title">🎨 Video Style <span style="font-size:11px;color:var(--muted);font-weight:400">(Select multiple)</span></div>
+                <div class="chips" id="style-chips">
+                  <button class="chip on" onclick="toggleMultiChip(this)">🎨 Cartoon</button>
+                  <button class="chip" onclick="toggleMultiChip(this)">⛩️ Anime</button>
+                  <button class="chip" onclick="toggleMultiChip(this)">💠 3D</button>
+                  <button class="chip" onclick="toggleMultiChip(this)">🎭 Realistic</button>
+                </div>
+              </div>
+              <div class="form-card">
+                <div class="form-title">🎙️ Voice &amp; Language <span style="font-size:11px;color:var(--muted);font-weight:400">(Select multiple)</span></div>
+                <div class="form-row">
+                  <label>Voice Language</label>
+                  <div class="chips" id="lang-chips">
+                    <button class="chip on" onclick="toggleMultiChip(this)">🇵🇰 Urdu</button>
+                    <button class="chip" onclick="toggleMultiChip(this)">🇺🇸 English</button>
+                    <button class="chip" onclick="toggleMultiChip(this)">🇸🇦 Arabic</button>
+                    <button class="chip" onclick="toggleMultiChip(this)">🇪🇸 Spanish</button>
+                  </div>
+                </div>
+              </div>
+              <div class="form-card">
+                <div class="form-title">📐 Quality Settings</div>
+                <div class="form-row">
+                  <label>Resolution</label>
+                  <div class="chips">
+                    <button class="chip" onclick="selectChip(this)">720p</button>
+                    <button class="chip on" onclick="selectChip(this)">1080p</button>
+                    <button class="chip" onclick="selectChip(this)">4K</button>
+                  </div>
+                </div>
+              </div>
+              <div class="action-row">
+                <button class="gen-btn" onclick="generateVideo()">⚡ Generate Video</button>
+                <button class="save-btn" onclick="saveProject()">💾 Save</button>
+              </div>
+            </div>
+            <div class="preview-panel">
+              <div class="preview-title">👁️ Preview</div>
+              <div class="preview-screen" id="preview-screen">🎬</div>
+              <div class="info-row"><span>Style</span><span id="preview-style">🎨 Cartoon</span></div>
+              <div class="info-row"><span>Voice</span><span id="preview-voice">🇵🇰 Urdu</span></div>
+              <div class="info-row"><span>Resolution</span><span id="preview-res">1080p</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== GALLERY ===== -->
+        <div id="page-gallery" class="page-content hidden">
+          <div class="page-title">🖼️ Video Gallery</div>
+          <div class="page-sub">All your saved projects</div>
+          <div id="gallery-container" class="gallery-grid"></div>
+          <div id="empty-gallery" style="text-align:center;padding:40px;color:var(--muted)">
+            <div style="font-size:64px;margin-bottom:16px">🎬</div>
+            <p>No videos saved yet. Create your first video!</p>
+            <button class="btn-primary" style="margin-top:16px" onclick="showPage('create')">Create Video →</button>
+          </div>
+        </div>
+
+        <!-- ===== SETTINGS ===== -->
+        <div id="page-settings" class="page-content hidden">
+          <div class="page-title">⚙️ Settings</div>
+          <div class="page-sub">Complete configuration for global use</div>
+
+          <div class="settings-section">
+            <div class="settings-title">👤 Account &amp; Billing</div>
+            <div class="setting-row">
+              <div class="setting-info"><div class="setting-label">Email</div><div class="setting-desc" id="user-email">-</div></div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info"><div class="setting-label">Plan</div><div class="setting-desc">Current subscription</div></div>
+              <span class="plan-badge" id="plan-badge">Free</span>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info"><div class="setting-label">Videos Used</div><div class="setting-desc">This month</div></div>
+              <span id="videos-used">0 / 10</span>
+            </div>
+            <div style="margin-top:12px">
+              <button class="btn-primary" onclick="showUpgrade()">⬆️ Upgrade to Pro</button>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-title">🎙️ Studio Preferences</div>
+            <div class="setting-row">
+              <div class="setting-info"><div class="setting-label">Dark Mode</div><div class="setting-desc">Easy on eyes</div></div>
+              <button class="toggle on" onclick="toggleDarkMode()"></button>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-title">🔑 AI APIs</div>
+            <div class="setting-row">
+              <div class="setting-info"><div class="setting-label">Runway ML API Key</div><div class="setting-desc">Video generation</div></div>
+              <input class="input" placeholder="sk-..." style="max-width:200px">
+            </div>
+            <div class="setting-row">
+              <div class="setting-info"><div class="setting-label">ElevenLabs API Key</div><div class="setting-desc">Voice generation</div></div>
+              <input class="input" placeholder="el-..." style="max-width:200px">
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-title">🔒 Privacy &amp; Compliance</div>
+            <div class="setting-row">
+              <div class="setting-info"><div class="setting-label">Export My Data</div><div class="setting-desc">Download as JSON</div></div>
+              <button class="btn-ghost" onclick="exportData()">📥 Export</button>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info"><div class="setting-label">Delete Account</div><div class="setting-desc">Permanently remove everything</div></div>
+              <button class="btn-danger" onclick="confirmDelete()">🗑️ Delete</button>
+            </div>
+            <div class="warning-box">
+              ⚠️ GDPR &amp; CCPA: You have the right to access, export, and delete your personal data.
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ===== TOAST ===== -->
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- ===== UPGRADE MODAL ===== -->
+  <div id="upgrade-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;align-items:center;justify-content:center">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:20px;padding:40px;max-width:500px;width:90%;text-align:center">
+      <h2 style="font-size:24px;margin-bottom:8px">🚀 Upgrade to Pro</h2>
+      <p style="color:var(--muted);margin-bottom:24px">Unlock unlimited videos &amp; premium features</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px">
+          <h3 style="font-size:18px;color:var(--violet2)">Free</h3>
+          <p style="font-size:24px;font-weight:900">$0</p>
+          <p style="font-size:12px;color:var(--muted)">10 videos/month</p>
+        </div>
+        <div style="background:var(--surface);border:2px solid var(--violet);border-radius:12px;padding:16px">
+          <h3 style="font-size:18px;color:var(--violet2)">Pro</h3>
+          <p style="font-size:24px;font-weight:900">$19.99</p>
+          <p style="font-size:12px;color:var(--muted)">Unlimited videos</p>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="upgradePlan()" style="width:100%;padding:14px;font-size:16px">⬆️ Subscribe Now</button>
+      <button class="btn-ghost" onclick="closeUpgrade()" style="margin-top:12px">Cancel</button>
+    </div>
+  </div>
+
+  <script>
+    // ===== SUPABASE CONFIG =====
+    const SUPABASE_URL = 'https://enziugrpiknqyohlypsz.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVueml1Z3JwaWtucXlvaGx5cHN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3MjU3OTMsImV4cCI6MjA5ODMwMTc5M30.hRrbmTf6bdyO1dSkwRYbZ_UAasPNt9wGohEw_2BsXeU';
+
+    var supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ===== STATE =====
+    var authMode = 'login';
+    var currentUser = null;
+    var currentPlan = 'free';
+    var videoCount = 0;
+    var videoLimit = 10;
+    var projects = [];
+
+    // ===== TOGGLE AUTH =====
+    function toggleAuthMode() {
+      authMode = authMode === 'login' ? 'signup' : 'login';
+      var nf = document.getElementById('signup-name');
+      var btn = document.querySelector('.btn-full.primary');
+      var gbtn = document.querySelector('.btn-full.ghost');
+      if (authMode === 'signup') {
+        nf.classList.remove('hidden');
+        btn.textContent = '✨ Create Account';
+        gbtn.textContent = '← Back to Login';
+      } else {
+        nf.classList.add('hidden');
+        btn.textContent = '🔐 Login';
+        gbtn.textContent = 'Create Account →';
+      }
+    }
+
+    // ===== LOGIN =====
+    async function doLogin() {
+      var email = document.getElementById('input-email').value;
+      var password = document.getElementById('input-password').value;
+
+      if (!email || !password) {
+        showToast('❌ Please enter email and password');
+        return;
+      }
+
+      try {
+        var result;
+        if (authMode === 'signup') {
+          var name = document.getElementById('input-name').value || 'User';
+          result = await supabase.auth.signUp({
+            email: email,
+            password: password,
+            options: {
+              data: { full_name: name }
+            }
+          });
+        } else {
+          result = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password
+          });
+        }
+
+        if (result.error) {
+          showToast('❌ ' + result.error.message);
+          return;
+        }
+
+        currentUser = result.data.user;
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userId', currentUser.id);
+
+        // Load user data
+        await loadUserData();
+
+        document.getElementById('page-login').classList.remove('active');
+        document.getElementById('page-app').classList.add('active');
+        showPage('dashboard');
+        updateUI();
+        showToast('✅ Welcome to FJ Pro!');
+
+      } catch (error) {
+        showToast('❌ ' + error.message);
+      }
+    }
+
+    // ===== LOAD USER DATA =====
+    async function loadUserData() {
+      if (!currentUser) return;
+      var { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', currentUser.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('User data error:', error);
+        return;
+      }
+
+      if (!data) {
+        // Create user if not exists
+        await supabase.from('users').insert({
+          id: currentUser.id,
+          email: currentUser.email,
+          plan: 'free',
+          videos_limit: 10,
+          videos_used: 0
+        });
+        currentPlan = 'free';
+        videoCount = 0;
+        videoLimit = 10;
+      } else {
+        currentPlan = data.plan || 'free';
+        videoCount = data.videos_used || 0;
+        videoLimit = data.videos_limit || 10;
+      }
+    }
+
+    // ===== SHOW PAGE =====
+    function showPage(name) {
+      var pages = ['dashboard', 'create', 'gallery', 'settings'];
+      pages.forEach(function(p) {
+        var el = document.getElementById('page-' + p);
+        var nav = document.getElementById('nav-' + p);
+        if (el) el.classList.add('hidden');
+        if (nav) nav.classList.remove('active');
+      });
+      var page = document.getElementById('page-' + name);
+      var nav = document.getElementById('nav-' + name);
+      if (page) page.classList.remove('hidden');
+      if (nav) nav.classList.add('active');
+
+      if (name === 'gallery') loadGallery();
+      if (name === 'dashboard') updateUI();
+    }
+
+    // ===== UPDATE UI =====
+    function updateUI() {
+      document.getElementById('welcome-msg').textContent =
+        'Welcome, ' + (currentUser?.user_metadata?.full_name || currentUser?.email || 'User') + '!';
+      document.getElementById('project-count').textContent = videoCount + ' videos used';
+      document.getElementById('user-email').textContent = currentUser?.email || '-';
+      document.getElementById('plan-badge').textContent = currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1);
+      document.getElementById('videos-used').textContent = videoCount + ' / ' + videoLimit;
+      document.getElementById('videos-used').style.color = videoCount >= videoLimit ? 'var(--danger)' : 'var(--text)';
+    }
+
+    // ===== CHIPS =====
+    function selectChip(el) {
+      el.parentElement.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('on'); });
+      el.classList.add('on');
+      updatePreview();
+    }
+
+    function toggleMultiChip(el) {
+      el.classList.toggle('on');
+      el.classList.toggle('multi');
+      updatePreview();
+    }
+
+    function updatePreview() {
+      var styles = document.querySelectorAll('#style-chips .chip.on');
+      var styleTexts = Array.from(styles).map(c => c.textContent.trim()).join(' + ');
+      document.getElementById('preview-style').textContent = styleTexts || 'None';
+
+      var voices = document.querySelectorAll('#lang-chips .chip.on');
+      var voiceTexts = Array.from(voices).map(c => c.textContent.trim()).join(' + ');
+      document.getElementById('preview-voice').textContent = voiceTexts || 'None';
+
+      var res = document.querySelector('#page-create .chips .chip.on:not(.multi)');
+      document.getElementById('preview-res').textContent = res ? res.textContent.trim() : '1080p';
+    }
+
+    // ===== SAVE PROJECT =====
+    async function saveProject() {
+      if (!currentUser) { showToast('❌ Please login first'); return; }
+
+      var name = document.getElementById('v-name').value || 'Untitled';
+      var prompt = document.getElementById('v-prompt').value || 'No prompt';
+
+      var styles = document.querySelectorAll('#style-chips .chip.on');
+      var style = Array.from(styles).map(c => c.textContent.trim()).join(', ');
+
+      var voices = document.querySelectorAll('#lang-chips .chip.on');
+      var voice = Array.from(voices).map(c => c.textContent.trim()).join(', ');
+
+      var res = document.querySelector('#page-create .chips .chip.on:not(.multi)');
+      var resolution = res ? res.textContent.trim() : '1080p';
+
+      try {
+        var { data, error } = await supabase.from('videos').insert({
+          user_id: currentUser.id,
+          name: name,
+          prompt: prompt,
+          style: style || 'Cartoon',
+          voice: voice || 'Urdu',
+          resolution: resolution,
+          video_url: 'pending'
+        });
+
+        if (error) { showToast('❌ ' + error.message); return; }
+
+        videoCount++;
+        await supabase.from('users')
+          .update({ videos_used: videoCount })
+          .eq('id', currentUser.id);
+
+        showToast('💾 Project "' + name + '" saved!');
+        updateUI();
+        loadGallery();
+
+      } catch (error) {
+        showToast('❌ ' + error.message);
+      }
+    }
+
+    // ===== GENERATE VIDEO =====
+    function generateVideo() {
+      var prompt = document.getElementById('v-prompt').value;
+      if (!prompt) { showToast('Please write a prompt first!'); return; }
+
+      if (videoCount >= videoLimit && currentPlan === 'free') {
+        showToast('⚠️ Free limit reached! Upgrade to Pro.');
+        showUpgrade();
+        return;
+      }
+
+      showToast('⚡ Generating video... (Connect API for real)');
+      setTimeout(function() {
+        showToast('✅ Video generated! Click Save to store.');
+      }, 2000);
+    }
+
+    // ===== GALLERY =====
+    async function loadGallery() {
+      if (!currentUser) return;
+      var container = document.getElementById('gallery-container');
+      var empty = document.getElementById('empty-gallery');
+
+      try {
+        var { data, error } = await supabase
+          .from('videos')
+          .select('*')
+          .eq('user_id', currentUser.id)
+          .order('created_at', { ascending: false });
+
+        if (error) { console.error('Gallery error:', error); return; }
+
+        if (!data || data.length === 0) {
+          container.innerHTML = '';
+          empty.style.display = 'block';
+          return;
+        }
+
+        empty.style.display = 'none';
+        container.innerHTML = data.map(function(p) {
+          return `
+            <div class="gallery-item">
+              <div class="video-icon">🎬</div>
+              <div class="video-name">${p.name}</div>
+              <div style="font-size:11px;color:var(--muted);margin:4px 0">${p.style} · ${p.voice}</div>
+              <div class="video-date">${new Date(p.created_at).toLocaleDateString()}</div>
+              <button class="btn-ghost" style="margin-top:8px;padding:4px 12px;font-size:11px" onclick="deleteProject('${p.id}')">🗑️</button>
+            </div>
+          `;
+        }).join('');
+
+      } catch (error) {
+        console.error('Gallery error:', error);
+      }
+    }
+
+    async function deleteProject(id) {
+      if (!confirm('Delete this video?')) return;
+      try {
+        await supabase.from('videos').delete().eq('id', id).eq('user_id', currentUser.id);
+        videoCount = Math.max(0, videoCount - 1);
+        await supabase.from('users').update({ videos_used: videoCount }).eq('id', currentUser.id);
+        loadGallery();
+        updateUI();
+        showToast('🗑️ Project deleted');
+      } catch (error) {
+        showToast('❌ ' + error.message);
+      }
+    }
+
+    // ===== UPGRADE =====
+    function showUpgrade() {
+      document.getElementById('upgrade-modal').style.display = 'flex';
+    }
+
+    function closeUpgrade() {
+      document.getElementById('upgrade-modal').style.display = 'none';
+    }
+
+    function upgradePlan() {
+      showToast('🚀 Stripe integration coming soon!');
+      closeUpgrade();
+    }
+
+    // ===== EXPORT =====
+    function exportData() {
+      var data = {
+        user: currentUser,
+        plan: currentPlan,
+        videos_used: videoCount,
+        exportedAt: new Date().toISOString()
+      };
+      var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'fjpro-data-export.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('📥 Data exported!');
+    }
+
+    function confirmDelete() {
+      if (confirm('⚠️ Permanently delete account & all data?')) {
+        showToast('🗑️ Account deletion requested');
+        setTimeout(doLogout, 1000);
+      }
+    }
+
+    // ===== TOGGLE DARK MODE =====
+    function toggleDarkMode() {
+      var toggle = document.querySelector('.toggle');
+      toggle.classList.toggle('on');
+      var isDark = toggle.classList.contains('on');
+      if (isDark) {
+        document.documentElement.style.setProperty('--bg', '#08090f');
+        document.documentElement.style.setProperty('--surface', '#10121c');
+        document.documentElement.style.setProperty('--card', '#161925');
+        document.documentElement.style.setProperty('--text', '#e8eaf0');
+        document.documentElement.style.setProperty('--border', '#232640');
+        document.documentElement.style.setProperty('--muted', '#6b7280');
+      } else {
+        document.documentElement.style.setProperty('--bg', '#f0f2f5');
+        document.documentElement.style.setProperty('--surface', '#ffffff');
+        document.documentElement.style.setProperty('--card', '#ffffff');
+        document.documentElement.style.setProperty('--text', '#1a1a2e');
+        document.documentElement.style.setProperty('--border', '#d1d5db');
+        document.documentElement.style.setProperty('--muted', '#6b7280');
+      }
+    }
+
+    // ===== LOGOUT =====
+    async function doLogout() {
+      await supabase.auth.signOut();
+      localStorage.setItem('isLoggedIn', 'false');
+      currentUser = null;
+      document.getElementById('page-app').classList.remove('active');
+      document.getElementById('page-login').classList.add('active');
+      showToast('Logged out');
+    }
+
+    // ===== TOAST =====
+    function showToast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.remove('hidden');
+      clearTimeout(t._timeout);
+      t._timeout = setTimeout(function() { t.classList.add('hidden'); }, 4000);
+    }
+
+    // ===== AUTO-LOGIN =====
+    window.onload = async function() {
+      var loggedIn = localStorage.getItem('isLoggedIn');
+      if (loggedIn === 'true') {
+        var { data, error } = await supabase.auth.getSession();
+        if (data.session) {
+          currentUser = data.session.user;
+          await loadUserData();
+          document.getElementById('page-login').classList.remove('active');
+          document.getElementById('page-app').classList.add('active');
+          showPage('dashboard');
+          updateUI();
+          loadGallery();
+        } else {
+          localStorage.setItem('isLoggedIn', 'false');
+        }
+      }
+      updatePreview();
+    };
+  </script>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FJ Pro AI Studio - Global AI Video Creator</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+  </script>
+  <style>
+    /* ===== FULL STYLES ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    :root {
+      --bg: #08090f;
+      --surface: #10121c;
+      --card: #161925;
+      --border: #232640;
+      --violet: #7c5cfc;
+      --violet2: #a78bfa;
+      --amber: #f59e0b;
+      --text: #e8eaf0;
+      --muted: #6b7280;
+      --danger: #ef4444;
+      --success: #10b981;
+      --grad: linear-gradient(135deg, #7c5cfc, #a78bfa, #f59e0b);
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+    }
+    .page {
+      display: none;
+      min-height: 100vh;
+    }
+    .page.active {
+      display: block;
+    }
+    .hidden {
+      display: none !important;
+    }
+
+    /* ===== SIDEBAR ===== */
+    .shell {
+      display: flex;
+      min-height: 100vh;
+    }
+    .sidebar {
+      width: 220px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      z-index: 100;
+      overflow-y: auto;
+    }
+    .sidebar-logo {
+      font-size: 20px;
+      font-weight: 900;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 28px;
+    }
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--muted);
+      border: none;
+      background: transparent;
+      text-align: left;
+      width: 100%;
+      transition: all 0.15s;
+    }
+    .nav-btn:hover {
+      background: var(--card);
+      color: var(--text);
+    }
+    .nav-btn.active {
+      background: rgba(124, 92, 252, 0.15);
+      color: var(--violet2);
+    }
+    .nav-icon {
+      font-size: 17px;
+      width: 22px;
+    }
+    .spacer {
+      flex: 1;
+    }
+    .nav-logout {
+      color: var(--danger) !important;
+    }
+    .main {
+      margin-left: 220px;
+      padding: 36px 40px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    /* ===== COMMON ===== */
+    .page-title {
+      font-size: 26px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+    .page-sub {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 28px;
+    }
+
+    /* ===== BANNER ===== */
+    .banner {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 32px;
+      margin-bottom: 28px;
+      background-image: radial-gradient(ellipse at 80% 50%, rgba(124, 92, 252, 0.12), transparent 70%);
+    }
+    .banner-title {
+      font-size: 22px;
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+    .banner-sub {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .tags {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+    .tag {
+      background: rgba(124, 92, 252, 0.18);
+      border: 1px solid rgba(124, 92, 252, 0.3);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px;
+      color: var(--violet2);
+      font-weight: 600;
+    }
+
+    /* ===== DASHBOARD CARDS ===== */
+    .dash-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+    .dash-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .dash-card:hover {
+      border-color: var(--violet);
+      transform: translateY(-2px);
+    }
+    .dash-icon {
+      font-size: 28px;
+      margin-bottom: 12px;
+    }
+    .dash-title {
+      font-weight: 700;
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+    .dash-desc {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    /* ===== CREATE ===== */
+    .create-grid {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 24px;
+    }
+    .form-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 18px;
+    }
+    .form-title {
+      font-weight: 700;
+      font-size: 15px;
+      margin-bottom: 18px;
+      color: var(--violet2);
+    }
+    .form-row {
+      margin-bottom: 18px;
+    }
+    .form-row label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 7px;
+    }
+    .input,
+    .select {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      color: var(--text);
+      font-size: 13px;
+      outline: none;
+      width: 100%;
+    }
+    .textarea {
+      width: 100%;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+      resize: vertical;
+      min-height: 100px;
+    }
+    .chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .chip {
+      padding: 7px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      transition: all 0.15s;
+    }
+    .chip.on {
+      border-color: var(--violet);
+      background: rgba(124, 92, 252, 0.15);
+      color: var(--violet2);
+    }
+    .chip.multi {
+      border-color: var(--success);
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+    }
+    .action-row {
+      display: flex;
+      gap: 12px;
+    }
+    .gen-btn {
+      flex: 2;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      background: var(--grad);
+      color: #fff;
+    }
+    .gen-btn:hover {
+      opacity: 0.9;
+    }
+    .save-btn {
+      flex: 1;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      background: var(--card);
+      border: 1.5px solid var(--violet);
+      color: var(--violet2);
+    }
+    .preview-panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      position: sticky;
+      top: 30px;
+    }
+    .preview-title {
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 14px;
+      color: var(--violet2);
+    }
+    .preview-screen {
+      background: #000;
+      border-radius: 10px;
+      aspect-ratio: 16/9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border);
+      margin-bottom: 14px;
+      color: var(--muted);
+      font-size: 32px;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .info-row span:first-child {
+      color: var(--muted);
+    }
+    .info-row span:last-child {
+      font-weight: 600;
+    }
+
+    /* ===== GALLERY ===== */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .gallery-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+    .gallery-item .video-icon {
+      font-size: 48px;
+      margin-bottom: 8px;
+    }
+    .gallery-item .video-name {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .gallery-item .video-date {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* ===== SETTINGS ===== */
+    .settings-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .settings-title {
+      font-weight: 700;
+      font-size: 15px;
+      margin-bottom: 18px;
+      color: var(--violet2);
+    }
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      gap: 12px;
+    }
+    .setting-row:last-child {
+      border-bottom: none;
+    }
+    .setting-info {
+      flex: 1;
+    }
+    .setting-label {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .setting-desc {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 2px;
+    }
+    .toggle {
+      width: 44px;
+      height: 24px;
+      background: var(--border);
+      border-radius: 12px;
+      position: relative;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s;
+    }
+    .toggle.on {
+      background: var(--violet);
+    }
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      transition: left 0.2s;
+    }
+    .toggle.on::after {
+      left: 23px;
+    }
+    .btn-primary {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      background: var(--grad);
+      color: #fff;
+      transition: opacity 0.2s;
+    }
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+    .btn-ghost {
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-ghost:hover {
+      border-color: var(--violet2);
+      background: rgba(124, 92, 252, 0.08);
+    }
+    .btn-danger {
+      padding: 9px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      border: 1.5px solid var(--danger);
+      background: transparent;
+      color: var(--danger);
+      cursor: pointer;
+    }
+    .plan-badge {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+      padding: 4px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .warning-box {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-top: 16px;
+      font-size: 12px;
+      color: #fca5a5;
+      line-height: 1.6;
+    }
+
+    /* ===== TOAST ===== */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: var(--success);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 9999;
+      animation: slideUp 0.3s;
+    }
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ===== LOGIN ===== */
+    .login-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: radial-gradient(ellipse at 60% 20%, #1a1040, #08090f);
+    }
+    .login-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      width: 100%;
+      max-width: 420px;
+    }
+    .logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .logo h1 {
+      font-size: 28px;
+      font-weight: 900;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .logo p {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .sidebar {
+        width: 60px;
+        padding: 16px 10px;
+      }
+      .sidebar-logo,
+      .nav-btn span:not(.nav-icon) {
+        display: none;
+      }
+      .nav-btn {
+        justify-content: center;
+      }
+      .main {
+        margin-left: 60px;
+        padding: 24px 16px;
+      }
+      .dash-grid {
+        grid-template-columns: 1fr;
+      }
+      .create-grid {
+        grid-template-columns: 1fr;
+      }
+      .gallery-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== LOGIN PAGE ===== -->
+  <div class="page active" id="page-login">
+    <div class="login-wrap">
+      <div class="login-box">
+        <div class="logo">
+          <h1>FJ Pro AI Studio</h1>
+          <p>Global AI Video Creator</p>
+        </div>
+        <div id="signup-name" class="field hidden">
+          <label>Full Name</label>
+          <input type="text" id="input-name" placeholder="Enter your name">
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="input-email" placeholder="email@example.com">
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="input-password" placeholder="••••••••">
+        </div>
+        <button class="btn-full primary" onclick="doLogin()">🔐 Login</button>
+        <div class="divider">— or —</div>
+        <button class="btn-full ghost" onclick="toggleAuthMode()">Create Account →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== APP ===== -->
+  <div class="page" id="page-app">
+    <div class="shell">
+      <nav class="sidebar">
+        <div class="sidebar-logo">FJ Pro</div>
+        <button class="nav-btn active" id="nav-dashboard" onclick="showPage('dashboard')">
+          <span class="nav-icon">🏠</span><span>Dashboard</span>
+        </button>
+        <button class="nav-btn" id="nav-create" onclick="showPage('create')">
+          <span class="nav-icon">🎬</span><span>Create</span>
+        </button>
+        <button class="nav-btn" id="nav-gallery" onclick="showPage('gallery')">
+          <span class="nav-icon">🖼️</span><span>Gallery</span>
+        </button>
+        <button class="nav-btn" id="nav-settings" onclick="showPage('settings')">
+          <span class="nav-icon">⚙️</span><span>Settings</span>
+        </button>
+        <div class="spacer"></div>
+        <button class="nav-btn nav-logout" onclick="doLogout()">
+          <span class="nav-icon">🚪</span><span>Logout</span>
+        </button>
+      </nav>
+
+      <main class="main">
+
+        <!-- ===== DASHBOARD ===== -->
+        <div id="page-dashboard" class="page-content">
+          <div class="page-title">Dashboard</div>
+          <div class="page-sub" id="welcome-msg">Welcome to FJ Pro AI Studio</div>
+          <div class="banner">
+            <div class="banner-title">Create AI Videos for the World 🌍</div>
+            <div class="banner-sub">Cartoon, Anime, 3D — multilingual voice, subtitles &amp; global export</div>
+            <div class="tags">
+              <span class="tag">Runway ML</span>
+              <span class="tag">Pika Labs</span>
+              <span class="tag">Luma AI</span>
+              <span class="tag">12+ Languages</span>
+              <span class="tag">4K Export</span>
+              <span class="tag">GDPR Ready</span>
+            </div>
+          </div>
+          <div class="dash-grid">
+            <div class="dash-card" onclick="showPage('create')">
+              <div class="dash-icon">🎬</div>
+              <div class="dash-title">New Video Project</div>
+              <div class="dash-desc">Write a prompt, choose style, add voice and generate.</div>
+            </div>
+            <div class="dash-card" onclick="showPage('gallery')">
+              <div class="dash-icon">💾</div>
+              <div class="dash-title">Saved Projects</div>
+              <div class="dash-desc" id="project-count">0 projects saved</div>
+            </div>
+            <div class="dash-card" onclick="showPage('gallery')">
+              <div class="dash-icon">🖼️</div>
+              <div class="dash-title">Video Gallery</div>
+              <div class="dash-desc">View your completed videos</div>
+            </div>
+            <div class="dash-card" onclick="showPage('settings')">
+              <div class="dash-icon">⚙️</div>
+              <div class="dash-title">Settings</div>
+              <div class="dash-desc">Configure API keys &amp; preferences</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== CREATE ===== -->
+        <div id="page-create" class="page-content hidden">
+          <div class="page-title">🎬 Create Video</div>
+          <div class="page-sub">Write a prompt and generate your AI video</div>
+          <div class="create-grid">
+            <div>
+              <div class="form-card">
+                <div class="form-title">📝 Project Details</div>
+                <div class="form-row">
+                  <label>Project Name</label>
+                  <input class="input" id="v-name" placeholder="My first video...">
+                </div>
+                <div class="form-row">
+                  <label>Video Prompt</label>
+                  <textarea class="textarea" id="v-prompt" placeholder="Describe your video..."></textarea>
+                </div>
+              </div>
+              <div class="form-card">
+                <div class="form-title">🎨 Video Style <span style="font-size:11px;color:var(--muted);font-weight:400">(Select multiple)</span></div>
+                <div class="chips" id="style-chips">
+                  <button class="chip on" onclick="toggleMultiChip(this)">🎨 Cartoon</button>
+                  <button class="chip" onclick="toggleMultiChip(this)">⛩️ Anime</button>
+                  <button class="chip" onclick="toggleMultiChip(this)">💠 3D</button>
+                  <button class="chip" onclick="toggleMultiChip(this)">🎭 Realistic</button>
+                </div>
+              </div>
+              <div class="form-card">
+                <div class="form-title">🎙️ Voice &amp; Language <span style="font-size:11px;color:var(--muted);font-weight:400">(Select multiple)</span></div>
+                <div class="form-row">
+                  <label>Voice Language</label>
+                  <div class="chips" id="lang-chips">
+                    <button class="chip on" onclick="toggleMultiChip(this)">🇵🇰 Urdu</button>
+                    <button class="chip" onclick="toggleMultiChip(this)">🇺🇸 English</button>
+                    <button class="chip" onclick="toggleMultiChip(this)">🇸🇦 Arabic</button>
+                    <button class="chip" onclick="toggleMultiChip(this)">🇪🇸 Spanish</button>
+                  </div>
+                </div>
+              </div>
+              <div class="form-card">
+                <div class="form-title">📐 Quality Settings</div>
+                <div class="form-row">
+                  <label>Resolution</label>
+                  <div class="chips">
+                    <button class="chip" onclick="selectChip(this)">720p</button>
+                    <button class="chip on" onclick="selectChip(this)">1080p</button>
+                    <button class="chip" onclick="selectChip(this)">4K</button>
+                  </div>
+                </div>
+              </div>
+              <div class="action-row">
+                <button class="gen-btn" onclick="generateVideo()">⚡ Generate Video</button>
+                <button class="save-btn" onclick="saveProject()">💾 Save</button>
+              </div>
+            </div>
+            <div class="preview-panel">
+              <div class="preview-title">👁️ Preview</div>
+              <div class="preview-screen" id="preview-screen">🎬</div>
+              <div class="info-row"><span>Style</span><span id="preview-style">🎨 Cartoon</span></div>
+              <div class="info-row"><span>Voice</span><span id="preview-voice">🇵🇰 Urdu</span></div>
+              <div class="info-row"><span>Resolution</span><span id="preview-res">1080p</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== GALLERY ===== -->
+        <div id="page-gallery" class="page-content hidden">
+          <div class="page-title">🖼️ Video Gallery</div>
+          <div class="page-sub">All your saved projects</div>
+          <div id="gallery-container" class="gallery-grid"></div>
+          <div id="empty-gallery" style="text-align:center;padding:40px;color:var(--muted)">
+            <div style="font-size:64px;margin-bottom:16px">🎬</div>
+            <p>No videos saved yet. Create your first video!</p>
+            <button class="btn-primary" style="margin-top:16px" onclick="showPage('create')">Create Video →</button>
+          </div>
+        </div>
+
+        <!-- ===== SETTINGS ===== -->
+        <div id="page-settings" class="page-content hidden">
+          <div class="page-title">⚙️ Settings</div>
+          <div class="page-sub">Complete configuration for global use</div>
+
+          <div class="settings-section">
+            <div class="settings-title">👤 Account &amp; Billing</div>
+            <div class="setting-row">
+              <div class="setting-info"><div class="setting-label">Email</div><div class="setting-desc" id="user-email">-</div></div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info"><div class="setting-label">Plan</div><div class="setting-desc">Current subscription</div></div>
+              <span class="plan-badge" id="plan-badge">Free</span>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info"><div class="setting-label">Videos Used</div><div class="setting-desc">This month</div></div>
+              <span id="videos-used">0 / 10</span>
+            </div>
+            <div style="margin-top:12px">
+              <button class="btn-primary" onclick="showUpgrade()">⬆️ Upgrade to Pro</button>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-title">🎙️ Studio Preferences</div>
+            <div class="setting-row">
+              <div class="setting-info"><div class="setting-label">Dark Mode</div><div class="setting-desc">Easy on eyes</div></div>
+              <button class="toggle on" onclick="toggleDarkMode()"></button>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-title">🔑 AI APIs</div>
+            <div class="setting-row">
+              <div class="setting-info"><div class="setting-label">Runway ML API Key</div><div class="setting-desc">Video generation</div></div>
+              <input class="input" placeholder="sk-..." style="max-width:200px">
+            </div>
+            <div class="setting-row">
+              <div class="setting-info"><div class="setting-label">ElevenLabs API Key</div><div class="setting-desc">Voice generation</div></div>
+              <input class="input" placeholder="el-..." style="max-width:200px">
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-title">🔒 Privacy &amp; Compliance</div>
+            <div class="setting-row">
+              <div class="setting-info"><div class="setting-label">Export My Data</div><div class="setting-desc">Download as JSON</div></div>
+              <button class="btn-ghost" onclick="exportData()">📥 Export</button>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info"><div class="setting-label">Delete Account</div><div class="setting-desc">Permanently remove everything</div></div>
+              <button class="btn-danger" onclick="confirmDelete()">🗑️ Delete</button>
+            </div>
+            <div class="warning-box">
+              ⚠️ GDPR &amp; CCPA: You have the right to access, export, and delete your personal data.
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ===== TOAST ===== -->
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- ===== UPGRADE MODAL ===== -->
+  <div id="upgrade-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;align-items:center;justify-content:center">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:20px;padding:40px;max-width:500px;width:90%;text-align:center">
+      <h2 style="font-size:24px;margin-bottom:8px">🚀 Upgrade to Pro</h2>
+      <p style="color:var(--muted);margin-bottom:24px">Unlock unlimited videos &amp; premium features</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px">
+          <h3 style="font-size:18px;color:var(--violet2)">Free</h3>
+          <p style="font-size:24px;font-weight:900">$0</p>
+          <p style="font-size:12px;color:var(--muted)">10 videos/month</p>
+        </div>
+        <div style="background:var(--surface);border:2px solid var(--violet);border-radius:12px;padding:16px">
+          <h3 style="font-size:18px;color:var(--violet2)">Pro</h3>
+          <p style="font-size:24px;font-weight:900">$19.99</p>
+          <p style="font-size:12px;color:var(--muted)">Unlimited videos</p>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="upgradePlan()" style="width:100%;padding:14px;font-size:16px">⬆️ Subscribe Now</button>
+      <button class="btn-ghost" onclick="closeUpgrade()" style="margin-top:12px">Cancel</button>
+    </div>
+  </div>
+
+  <script>
+    // ===== SUPABASE CONFIG =====
+    const SUPABASE_URL = 'https://enziugrpiknqyohlypsz.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVueml1Z3JwaWtucXlvaGx5cHN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3MjU3OTMsImV4cCI6MjA5ODMwMTc5M30.hRrbmTf6bdyO1dSkwRYbZ_UAasPNt9wGohEw_2BsXeU';
+
+    var supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ===== STATE =====
+    var authMode = 'login';
+    var currentUser = null;
+    var currentPlan = 'free';
+    var videoCount = 0;
+    var videoLimit = 10;
+    var projects = [];
+
+    // ===== TOGGLE AUTH =====
+    function toggleAuthMode() {
+      authMode = authMode === 'login' ? 'signup' : 'login';
+      var nf = document.getElementById('signup-name');
+      var btn = document.querySelector('.btn-full.primary');
+      var gbtn = document.querySelector('.btn-full.ghost');
+      if (authMode === 'signup') {
+        nf.classList.remove('hidden');
+        btn.textContent = '✨ Create Account';
+        gbtn.textContent = '← Back to Login';
+      } else {
+        nf.classList.add('hidden');
+        btn.textContent = '🔐 Login';
+        gbtn.textContent = 'Create Account →';
+      }
+    }
+
+    // ===== LOGIN =====
+    async function doLogin() {
+      var email = document.getElementById('input-email').value;
+      var password = document.getElementById('input-password').value;
+
+      if (!email || !password) {
+        showToast('❌ Please enter email and password');
+        return;
+      }
+
+      try {
+        var result;
+        if (authMode === 'signup') {
+          var name = document.getElementById('input-name').value || 'User';
+          result = await supabase.auth.signUp({
+            email: email,
+            password: password,
+            options: {
+              data: { full_name: name }
+            }
+          });
+        } else {
+          result = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password
+          });
+        }
+
+        if (result.error) {
+          showToast('❌ ' + result.error.message);
+          return;
+        }
+
+        currentUser = result.data.user;
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userId', currentUser.id);
+
+        // Load user data
+        await loadUserData();
+
+        document.getElementById('page-login').classList.remove('active');
+        document.getElementById('page-app').classList.add('active');
+        showPage('dashboard');
+        updateUI();
+        showToast('✅ Welcome to FJ Pro!');
+
+      } catch (error) {
+        showToast('❌ ' + error.message);
+      }
+    }
+
+    // ===== LOAD USER DATA =====
+    async function loadUserData() {
+      if (!currentUser) return;
+      var { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', currentUser.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('User data error:', error);
+        return;
+      }
+
+      if (!data) {
+        // Create user if not exists
+        await supabase.from('users').insert({
+          id: currentUser.id,
+          email: currentUser.email,
+          plan: 'free',
+          videos_limit: 10,
+          videos_used: 0
+        });
+        currentPlan = 'free';
+        videoCount = 0;
+        videoLimit = 10;
+      } else {
+        currentPlan = data.plan || 'free';
+        videoCount = data.videos_used || 0;
+        videoLimit = data.videos_limit || 10;
+      }
+    }
+
+    // ===== SHOW PAGE =====
+    function showPage(name) {
+      var pages = ['dashboard', 'create', 'gallery', 'settings'];
+      pages.forEach(function(p) {
+        var el = document.getElementById('page-' + p);
+        var nav = document.getElementById('nav-' + p);
+        if (el) el.classList.add('hidden');
+        if (nav) nav.classList.remove('active');
+      });
+      var page = document.getElementById('page-' + name);
+      var nav = document.getElementById('nav-' + name);
+      if (page) page.classList.remove('hidden');
+      if (nav) nav.classList.add('active');
+
+      if (name === 'gallery') loadGallery();
+      if (name === 'dashboard') updateUI();
+    }
+
+    // ===== UPDATE UI =====
+    function updateUI() {
+      document.getElementById('welcome-msg').textContent =
+        'Welcome, ' + (currentUser?.user_metadata?.full_name || currentUser?.email || 'User') + '!';
+      document.getElementById('project-count').textContent = videoCount + ' videos used';
+      document.getElementById('user-email').textContent = currentUser?.email || '-';
+      document.getElementById('plan-badge').textContent = currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1);
+      document.getElementById('videos-used').textContent = videoCount + ' / ' + videoLimit;
+      document.getElementById('videos-used').style.color = videoCount >= videoLimit ? 'var(--danger)' : 'var(--text)';
+    }
+
+    // ===== CHIPS =====
+    function selectChip(el) {
+      el.parentElement.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('on'); });
+      el.classList.add('on');
+      updatePreview();
+    }
+
+    function toggleMultiChip(el) {
+      el.classList.toggle('on');
+      el.classList.toggle('multi');
+      updatePreview();
+    }
+
+    function updatePreview() {
+      var styles = document.querySelectorAll('#style-chips .chip.on');
+      var styleTexts = Array.from(styles).map(c => c.textContent.trim()).join(' + ');
+      document.getElementById('preview-style').textContent = styleTexts || 'None';
+
+      var voices = document.querySelectorAll('#lang-chips .chip.on');
+      var voiceTexts = Array.from(voices).map(c => c.textContent.trim()).join(' + ');
+      document.getElementById('preview-voice').textContent = voiceTexts || 'None';
+
+      var res = document.querySelector('#page-create .chips .chip.on:not(.multi)');
+      document.getElementById('preview-res').textContent = res ? res.textContent.trim() : '1080p';
+    }
+
+    // ===== SAVE PROJECT =====
+    async function saveProject() {
+      if (!currentUser) { showToast('❌ Please login first'); return; }
+
+      var name = document.getElementById('v-name').value || 'Untitled';
+      var prompt = document.getElementById('v-prompt').value || 'No prompt';
+
+      var styles = document.querySelectorAll('#style-chips .chip.on');
+      var style = Array.from(styles).map(c => c.textContent.trim()).join(', ');
+
+      var voices = document.querySelectorAll('#lang-chips .chip.on');
+      var voice = Array.from(voices).map(c => c.textContent.trim()).join(', ');
+
+      var res = document.querySelector('#page-create .chips .chip.on:not(.multi)');
+      var resolution = res ? res.textContent.trim() : '1080p';
+
+      try {
+        var { data, error } = await supabase.from('videos').insert({
+          user_id: currentUser.id,
+          name: name,
+          prompt: prompt,
+          style: style || 'Cartoon',
+          voice: voice || 'Urdu',
+          resolution: resolution,
+          video_url: 'pending'
+        });
+
+        if (error) { showToast('❌ ' + error.message); return; }
+
+        videoCount++;
+        await supabase.from('users')
+          .update({ videos_used: videoCount })
+          .eq('id', currentUser.id);
+
+        showToast('💾 Project "' + name + '" saved!');
+        updateUI();
+        loadGallery();
+
+      } catch (error) {
+        showToast('❌ ' + error.message);
+      }
+    }
+
+    // ===== GENERATE VIDEO =====
+    function generateVideo() {
+      var prompt = document.getElementById('v-prompt').value;
+      if (!prompt) { showToast('Please write a prompt first!'); return; }
+
+      if (videoCount >= videoLimit && currentPlan === 'free') {
+        showToast('⚠️ Free limit reached! Upgrade to Pro.');
+        showUpgrade();
+        return;
+      }
+
+      showToast('⚡ Generating video... (Connect API for real)');
+      setTimeout(function() {
+        showToast('✅ Video generated! Click Save to store.');
+      }, 2000);
+    }
+
+    // ===== GALLERY =====
+    async function loadGallery() {
+      if (!currentUser) return;
+      var container = document.getElementById('gallery-container');
+      var empty = document.getElementById('empty-gallery');
+
+      try {
+        var { data, error } = await supabase
+          .from('videos')
+          .select('*')
+          .eq('user_id', currentUser.id)
+          .order('created_at', { ascending: false });
+
+        if (error) { console.error('Gallery error:', error); return; }
+
+        if (!data || data.length === 0) {
+          container.innerHTML = '';
+          empty.style.display = 'block';
+          return;
+        }
+
+        empty.style.display = 'none';
+        container.innerHTML = data.map(function(p) {
+          return `
+            <div class="gallery-item">
+              <div class="video-icon">🎬</div>
+              <div class="video-name">${p.name}</div>
+              <div style="font-size:11px;color:var(--muted);margin:4px 0">${p.style} · ${p.voice}</div>
+              <div class="video-date">${new Date(p.created_at).toLocaleDateString()}</div>
+              <button class="btn-ghost" style="margin-top:8px;padding:4px 12px;font-size:11px" onclick="deleteProject('${p.id}')">🗑️</button>
+            </div>
+          `;
+        }).join('');
+
+      } catch (error) {
+        console.error('Gallery error:', error);
+      }
+    }
+
+    async function deleteProject(id) {
+      if (!confirm('Delete this video?')) return;
+      try {
+        await supabase.from('videos').delete().eq('id', id).eq('user_id', currentUser.id);
+        videoCount = Math.max(0, videoCount - 1);
+        await supabase.from('users').update({ videos_used: videoCount }).eq('id', currentUser.id);
+        loadGallery();
+        updateUI();
+        showToast('🗑️ Project deleted');
+      } catch (error) {
+        showToast('❌ ' + error.message);
+      }
+    }
+
+    // ===== UPGRADE =====
+    function showUpgrade() {
+      document.getElementById('upgrade-modal').style.display = 'flex';
+    }
+
+    function closeUpgrade() {
+      document.getElementById('upgrade-modal').style.display = 'none';
+    }
+
+    function upgradePlan() {
+      showToast('🚀 Stripe integration coming soon!');
+      closeUpgrade();
+    }
+
+    // ===== EXPORT =====
+    function exportData() {
+      var data = {
+        user: currentUser,
+        plan: currentPlan,
+        videos_used: videoCount,
+        exportedAt: new Date().toISOString()
+      };
+      var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'fjpro-data-export.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('📥 Data exported!');
+    }
+
+    function confirmDelete() {
+      if (confirm('⚠️ Permanently delete account & all data?')) {
+        showToast('🗑️ Account deletion requested');
+        setTimeout(doLogout, 1000);
+      }
+    }
+
+    // ===== TOGGLE DARK MODE =====
+    function toggleDarkMode() {
+      var toggle = document.querySelector('.toggle');
+      toggle.classList.toggle('on');
+      var isDark = toggle.classList.contains('on');
+      if (isDark) {
+        document.documentElement.style.setProperty('--bg', '#08090f');
+        document.documentElement.style.setProperty('--surface', '#10121c');
+        document.documentElement.style.setProperty('--card', '#161925');
+        document.documentElement.style.setProperty('--text', '#e8eaf0');
+        document.documentElement.style.setProperty('--border', '#232640');
+        document.documentElement.style.setProperty('--muted', '#6b7280');
+      } else {
+        document.documentElement.style.setProperty('--bg', '#f0f2f5');
+        document.documentElement.style.setProperty('--surface', '#ffffff');
+        document.documentElement.style.setProperty('--card', '#ffffff');
+        document.documentElement.style.setProperty('--text', '#1a1a2e');
+        document.documentElement.style.setProperty('--border', '#d1d5db');
+        document.documentElement.style.setProperty('--muted', '#6b7280');
+      }
+    }
+
+    // ===== LOGOUT =====
+    async function doLogout() {
+      await supabase.auth.signOut();
+      localStorage.setItem('isLoggedIn', 'false');
+      currentUser = null;
+      document.getElementById('page-app').classList.remove('active');
+      document.getElementById('page-login').classList.add('active');
+      showToast('Logged out');
+    }
+
+    // ===== TOAST =====
+    function showToast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.remove('hidden');
+      clearTimeout(t._timeout);
+      t._timeout = setTimeout(function() { t.classList.add('hidden'); }, 4000);
+    }
+
+    // ===== AUTO-LOGIN =====
+    window.onload = async function() {
+      var loggedIn = localStorage.getItem('isLoggedIn');
+      if (loggedIn === 'true') {
+        var { data, error } = await supabase.auth.getSession();
+        if (data.session) {
+          currentUser = data.session.user;
+          await loadUserData();
+          document.getElementById('page-login').classList.remove('active');
+          document.getElementById('page-app').classList.add('active');
+          showPage('dashboard');
+          updateUI();
+          loadGallery();
+        } else {
+          localStorage.setItem('isLoggedIn', 'false');
+        }
+      }
+      updatePreview();
+    };
+  </script>
+
+</body>
 </html>
