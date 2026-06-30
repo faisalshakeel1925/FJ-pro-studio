@@ -1,909 +1,313 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FJ Pro AI Studio - Global AI Video Creator</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-/* ===== SAME CSS AS BEFORE ===== */
-*{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#08090f;--surface:#10121c;--card:#161925;--border:#232640;--violet:#7c5cfc;--violet2:#a78bfa;--amber:#f59e0b;--text:#e8eaf0;--muted:#6b7280;--danger:#ef4444;--success:#10b981;--grad:linear-gradient(135deg,#7c5cfc,#a78bfa,#f59e0b)}
-body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;min-height:100vh}
-::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
-.page{display:none;min-height:100vh}.page.active{display:block}.hidden{display:none!important}
-.shell{display:flex;min-height:100vh}
-.sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);padding:24px 16px;display:flex;flex-direction:column;gap:6px;position:fixed;top:0;left:0;height:100vh;z-index:100;overflow-y:auto}
-.sidebar-logo{font-size:20px;font-weight:900;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:28px}
-.nav-btn{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;color:var(--muted);border:none;background:transparent;text-align:left;width:100%;transition:all .15s}
-.nav-btn:hover{background:var(--card);color:var(--text)}
-.nav-btn.active{background:rgba(124,92,252,.15);color:var(--violet2)}
-.nav-icon{font-size:17px;width:22px}
-.spacer{flex:1}
-.nav-logout{color:var(--danger)!important}
-.main{margin-left:220px;padding:36px 40px;flex:1;overflow-y:auto}
-.page-title{font-size:26px;font-weight:900;margin-bottom:8px}
-.page-sub{color:var(--muted);font-size:14px;margin-bottom:28px}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FJ Pro AI Studio - Global AI Video Creator</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #08090f; --surface: #10121c; --card: #161925; --border: #232640;
+      --violet: #7c5cfc; --violet2: #a78bfa; --amber: #f59e0b;
+      --text: #e8eaf0; --muted: #6b7280; --danger: #ef4444; --success: #10b981;
+      --grad: linear-gradient(135deg, #7c5cfc, #a78bfa, #f59e0b);
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; min-height: 100vh; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    .page { display: none; min-height: 100vh; }
+    .page.active { display: block; }
+    .hidden { display: none !important; }
 
-/* ===== DASHBOARD ===== */
-.banner{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 32px;margin-bottom:28px;background-image:radial-gradient(ellipse at 80% 50%,rgba(124,92,252,.12),transparent 70%)}
-.banner-label{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--violet2);font-weight:600;margin-bottom:8px}
-.banner-title{font-size:22px;font-weight:900;margin-bottom:6px}
-.banner-sub{color:var(--muted);font-size:14px}
-.tags{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
-.tag{background:rgba(124,92,252,.18);border:1px solid rgba(124,92,252,.3);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--violet2);font-weight:600}
-.dash-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
-.dash-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;cursor:pointer;transition:all .2s}
-.dash-card:hover{border-color:var(--violet);transform:translateY(-2px)}
-.dash-icon{font-size:28px;margin-bottom:12px}
-.dash-title{font-weight:700;font-size:16px;margin-bottom:4px}
-.dash-desc{color:var(--muted);font-size:13px;line-height:1.5}
+    .shell { display: flex; min-height: 100vh; }
+    .sidebar { width: 220px; background: var(--surface); border-right: 1px solid var(--border); padding: 24px 16px; display: flex; flex-direction: column; gap: 6px; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; overflow-y: auto; }
+    .sidebar-logo { font-size: 20px; font-weight: 900; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 28px; }
+    .nav-btn { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--muted); border: none; background: transparent; text-align: left; width: 100%; transition: all 0.15s; }
+    .nav-btn:hover { background: var(--card); color: var(--text); }
+    .nav-btn.active { background: rgba(124, 92, 252, 0.15); color: var(--violet2); }
+    .nav-icon { font-size: 17px; width: 22px; }
+    .spacer { flex: 1; }
+    .nav-logout { color: var(--danger) !important; }
+    .main { margin-left: 220px; padding: 36px 40px; flex: 1; overflow-y: auto; }
+    .page-title { font-size: 26px; font-weight: 900; margin-bottom: 8px; }
+    .page-sub { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
 
-/* ===== SETTINGS ===== */
-.settings-section{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:20px}
-.settings-title{font-weight:700;font-size:15px;margin-bottom:18px;color:var(--violet2)}
-.setting-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);gap:12px}
-.setting-row:last-child{border-bottom:none}
-.setting-info{flex:1}
-.setting-label{font-size:14px;font-weight:600}
-.setting-desc{color:var(--muted);font-size:12px;margin-top:2px}
-.input,.select{background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:13px;outline:none;min-width:160px}
-.select{cursor:pointer;appearance:none}
-.progress-bar{width:100%;height:8px;background:var(--surface);border-radius:4px;overflow:hidden;margin-top:8px}
-.progress-fill{height:100%;background:var(--grad);border-radius:4px;width:45%;transition:width 0.8s ease}
-.progress-text{font-size:12px;color:var(--muted);margin-top:4px}
-.toggle{width:44px;height:24px;background:var(--border);border-radius:12px;position:relative;cursor:pointer;border:none;transition:background .2s}
-.toggle.on{background:var(--violet)}
-.toggle::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:left .2s}
-.toggle.on::after{left:23px}
-.btn-primary{padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;border:none;cursor:pointer;background:var(--grad);color:#fff;transition:opacity .2s}
-.btn-primary:hover{opacity:.9}
-.btn-ghost{padding:10px 16px;border-radius:8px;font-size:13px;font-weight:700;border:1.5px solid var(--border);background:transparent;color:var(--text);cursor:pointer;transition:all .2s}
-.btn-ghost:hover{border-color:var(--violet2);background:rgba(124,92,252,.08)}
-.btn-danger{padding:9px 14px;border-radius:8px;font-size:13px;font-weight:700;border:1.5px solid var(--danger);background:transparent;color:var(--danger);cursor:pointer}
-.plan-badge{background:rgba(16,185,129,.15);color:var(--success);padding:4px 12px;border-radius:8px;font-size:12px;font-weight:700}
-.warning-box{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:10px;padding:12px 16px;margin-top:16px;font-size:12px;color:#fca5a5;line-height:1.6}
-.info-box{background:rgba(124,92,252,.08);border:1px solid rgba(124,92,252,.25);border-radius:10px;padding:12px 16px;margin-top:16px;font-size:12px;color:var(--violet2);line-height:1.6}
+    .banner { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px 32px; margin-bottom: 28px; background-image: radial-gradient(ellipse at 80% 50%, rgba(124, 92, 252, 0.12), transparent 70%); }
+    .banner-title { font-size: 22px; font-weight: 900; margin-bottom: 6px; }
+    .banner-sub { color: var(--muted); font-size: 14px; }
+    .tags { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+    .tag { background: rgba(124, 92, 252, 0.18); border: 1px solid rgba(124, 92, 252, 0.3); border-radius: 20px; padding: 4px 12px; font-size: 12px; color: var(--violet2); font-weight: 600; }
+    .dash-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .dash-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; cursor: pointer; transition: all 0.2s; }
+    .dash-card:hover { border-color: var(--violet); transform: translateY(-2px); }
+    .dash-icon { font-size: 28px; margin-bottom: 12px; }
+    .dash-title { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+    .dash-desc { color: var(--muted); font-size: 13px; line-height: 1.5; }
 
-/* ===== CREATE VIDEO ===== */
-.create-grid{display:grid;grid-template-columns:1fr 300px;gap:24px}
-.form-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:18px}
-.form-title{font-weight:700;font-size:15px;margin-bottom:18px;color:var(--violet2)}
-.form-row{margin-bottom:18px}
-.form-row label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:7px}
-.textarea{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:14px;outline:none;resize:vertical;min-height:100px}
-.textarea:focus{border-color:var(--violet)}
-.chips{display:flex;gap:8px;flex-wrap:wrap}
-.chip{padding:7px 14px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);transition:all .15s}
-.chip.on{border-color:var(--violet);background:rgba(124,92,252,.15);color:var(--violet2)}
-.chip.multi{border-color:var(--success);background:rgba(16,185,129,.15);color:var(--success)}
-.action-row{display:flex;gap:12px}
-.gen-btn{flex:2;padding:14px;border-radius:12px;font-size:15px;font-weight:700;border:none;cursor:pointer;background:var(--grad);color:#fff}
-.gen-btn:hover{opacity:.9}
-.gen-btn:disabled{opacity:0.4;cursor:not-allowed}
-.save-btn{flex:1;padding:14px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;background:var(--card);border:1.5px solid var(--violet);color:var(--violet2)}
+    .toast { position: fixed; bottom: 30px; right: 30px; background: var(--success); color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; z-index: 9999; animation: slideUp 0.3s; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-/* ===== GALLERY ===== */
-.gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-top:16px}
-.gallery-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center}
-.gallery-item .video-icon{font-size:48px;margin-bottom:8px}
-.gallery-item .video-name{font-size:14px;font-weight:600}
-.gallery-item .video-date{font-size:11px;color:var(--muted)}
+    .login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: radial-gradient(ellipse at 60% 20%, #1a1040, #08090f); }
+    .login-box { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 40px; width: 100%; max-width: 420px; }
+    .logo { text-align: center; margin-bottom: 32px; }
+    .logo h1 { font-size: 28px; font-weight: 900; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .logo p { color: var(--muted); font-size: 13px; margin-top: 4px; }
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+    .field input { width: 100%; background: var(--surface); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 14px; color: var(--text); font-size: 15px; outline: none; }
+    .field input:focus { border-color: var(--violet); }
+    .btn-full { width: 100%; padding: 13px; border-radius: 10px; font-size: 15px; font-weight: 700; border: none; cursor: pointer; }
+    .btn-full.primary { background: var(--grad); color: #fff; }
+    .btn-full.primary:hover { opacity: 0.9; }
+    .btn-full.ghost { background: transparent; border: 1.5px solid var(--border); color: var(--violet2); margin-top: 10px; }
+    .divider { text-align: center; color: var(--muted); font-size: 12px; margin: 14px 0; }
 
-/* ===== TOAST ===== */
-.toast{position:fixed;bottom:30px;right:30px;background:var(--success);color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:9999;animation:slideUp .3s}
-@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-
-/* ===== LOGIN ===== */
-.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(ellipse at 60% 20%,#1a1040,#08090f)}
-.login-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:40px;width:100%;max-width:420px}
-.logo{text-align:center;margin-bottom:32px}
-.logo h1{font-size:28px;font-weight:900;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.logo p{color:var(--muted);font-size:13px;margin-top:4px}
-.field{margin-bottom:16px}
-.field label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px}
-.field input{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:15px;outline:none}
-.field input:focus{border-color:var(--violet)}
-.field input.valid{border-color:var(--success)}
-.field input.invalid{border-color:var(--danger)}
-.btn-full{width:100%;padding:13px;border-radius:10px;font-size:15px;font-weight:700;border:none;cursor:pointer}
-.btn-full.primary{background:var(--grad);color:#fff}
-.btn-full.primary:hover{opacity:.9}
-.btn-full.ghost{background:transparent;border:1.5px solid var(--border);color:var(--violet2);margin-top:10px}
-.divider{text-align:center;color:var(--muted);font-size:12px;margin:14px 0}
-
-/* ===== KEYBOARD SHORTCUT HINT ===== */
-.shortcut-hint{position:fixed;bottom:80px;right:30px;background:var(--card);border:1px solid var(--border);padding:8px 14px;border-radius:8px;font-size:11px;color:var(--muted);z-index:100}
-
-/* ===== RESPONSIVE ===== */
-@media(max-width:900px){
-  .sidebar{width:60px;padding:16px 10px}
-  .sidebar-logo,.nav-btn span:not(.nav-icon){display:none}
-  .nav-btn{justify-content:center}
-  .main{margin-left:60px;padding:24px 16px}
-  .dash-grid{grid-template-columns:1fr}
-  .create-grid{grid-template-columns:1fr}
-  .gallery-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
-}
-</style>
+    @media (max-width: 900px) {
+      .sidebar { width: 60px; padding: 16px 10px; }
+      .sidebar-logo, .nav-btn span:not(.nav-icon) { display: none; }
+      .nav-btn { justify-content: center; }
+      .main { margin-left: 60px; padding: 24px 16px; }
+      .dash-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
 
-<!-- ===== LOGIN ===== -->
-<div class="page active" id="page-login">
-<div class="login-wrap">
-  <div class="login-box">
-    <div class="logo"><h1>FJ Pro AI Studio</h1><p>Global AI Video Creator</p></div>
-    <div id="signup-name" class="field hidden">
-      <label>Full Name</label>
-      <input type="text" id="input-name" placeholder="Enter your name">
+  <!-- ===== LOGIN PAGE ===== -->
+  <div class="page active" id="page-login">
+    <div class="login-wrap">
+      <div class="login-box">
+        <div class="logo">
+          <h1>FJ Pro AI Studio</h1>
+          <p>Global AI Video Creator</p>
+        </div>
+        <div id="signup-name" class="field hidden">
+          <label>Full Name</label>
+          <input type="text" id="input-name" placeholder="Enter your name">
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="input-email" placeholder="email@example.com">
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="input-password" placeholder="••••••••">
+        </div>
+        <button class="btn-full primary" onclick="doLogin()">🔐 Login</button>
+        <div class="divider">— or —</div>
+        <button class="btn-full ghost" onclick="toggleAuthMode()">Create Account →</button>
+      </div>
     </div>
-    <div class="field">
-      <label>Email</label>
-      <input type="email" id="input-email" placeholder="email@example.com" oninput="validateEmail(this)">
-      <span id="email-error" style="font-size:11px;color:var(--danger);display:none">Invalid email</span>
-    </div>
-    <div class="field">
-      <label>Password</label>
-      <input type="password" id="input-password" placeholder="••••••••" oninput="validatePassword(this)">
-      <span id="pass-error" style="font-size:11px;color:var(--danger);display:none">Min 6 characters</span>
-    </div>
-    <button class="btn-full primary" onclick="doLogin()">🔐 Login</button>
-    <div class="divider">— or —</div>
-    <button class="btn-full ghost" onclick="toggleAuthMode()">Create Account →</button>
   </div>
-</div>
-</div>
 
-<!-- ===== APP ===== -->
-<div class="page" id="page-app">
-<div class="shell">
-  <nav class="sidebar">
-    <div class="sidebar-logo">FJ Pro</div>
-    <button class="nav-btn active" id="nav-dash" onclick="showPage('dashboard')">
-      <span class="nav-icon">🏠</span><span>Dashboard</span>
-    </button>
-    <button class="nav-btn" id="nav-create" onclick="showPage('create')">
-      <span class="nav-icon">🎬</span><span>Create</span>
-    </button>
-    <button class="nav-btn" id="nav-gallery" onclick="showPage('gallery')">
-      <span class="nav-icon">🖼️</span><span>Gallery</span>
-    </button>
-    <button class="nav-btn" id="nav-settings" onclick="showPage('settings')">
-      <span class="nav-icon">⚙️</span><span>Settings</span>
-    </button>
-    <div class="spacer"></div>
-    <button class="nav-btn nav-logout" onclick="doLogout()">
-      <span class="nav-icon">🚪</span><span>Logout</span>
-    </button>
-  </nav>
+  <!-- ===== DASHBOARD PAGE ===== -->
+  <div class="page" id="page-dashboard">
+    <div class="shell">
+      <nav class="sidebar">
+        <div class="sidebar-logo">FJ Pro</div>
+        <button class="nav-btn active">
+          <span class="nav-icon">🏠</span><span>Dashboard</span>
+        </button>
+        <button class="nav-btn">
+          <span class="nav-icon">🎬</span><span>Create</span>
+        </button>
+        <button class="nav-btn">
+          <span class="nav-icon">🖼️</span><span>Gallery</span>
+        </button>
+        <button class="nav-btn">
+          <span class="nav-icon">⚙️</span><span>Settings</span>
+        </button>
+        <div class="spacer"></div>
+        <button class="nav-btn nav-logout" onclick="doLogout()">
+          <span class="nav-icon">🚪</span><span>Logout</span>
+        </button>
+      </nav>
 
-  <main class="main">
-
-    <!-- ===== DASHBOARD ===== -->
-    <div id="page-dashboard" class="page-content">
-      <div class="page-title">Dashboard</div>
-      <div class="page-sub" id="welcome-msg">Welcome to FJ Pro AI Studio</div>
-      <div class="banner">
-        <div class="banner-label">AI Video Studio</div>
-        <div class="banner-title">Create AI Videos for the World 🌍</div>
-        <div class="banner-sub">Cartoon, Anime, 3D — multilingual voice, subtitles & global export</div>
-        <div class="tags">
-          <span class="tag">Runway ML</span><span class="tag">Pika Labs</span><span class="tag">Luma AI</span>
-          <span class="tag">12+ Languages</span><span class="tag">4K Export</span><span class="tag">GDPR Ready</span>
-        </div>
-      </div>
-      <div class="dash-grid">
-        <div class="dash-card" onclick="showPage('create')">
-          <div class="dash-icon">🎬</div>
-          <div class="dash-title">New Video Project</div>
-          <div class="dash-desc">Write a prompt, choose style, add voice in any language and generate.</div>
-        </div>
-        <div class="dash-card" onclick="showPage('gallery')">
-          <div class="dash-icon">💾</div>
-          <div class="dash-title">Saved Projects</div>
-          <div class="dash-desc" id="project-count">0 projects saved. Create your first video!</div>
-        </div>
-        <div class="dash-card" onclick="showPage('gallery')">
-          <div class="dash-icon">🖼️</div>
-          <div class="dash-title">Video Gallery</div>
-          <div class="dash-desc" id="gallery-count">View your completed videos</div>
-        </div>
-        <div class="dash-card" onclick="showPage('settings')">
-          <div class="dash-icon">⚙️</div>
-          <div class="dash-title">Settings</div>
-          <div class="dash-desc">Language, timezone, currency, privacy & API configuration.</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== CREATE VIDEO ===== -->
-    <div id="page-create" class="page-content hidden">
-      <div class="page-title">🎬 Create Video</div>
-      <div class="page-sub">Write a prompt and generate your AI video</div>
-      <div class="create-grid">
-        <div>
-          <div class="form-card">
-            <div class="form-title">📝 Project Details</div>
-            <div class="form-row">
-              <label>Project Name</label>
-              <input class="input" id="v-name" placeholder="My first video...">
-            </div>
-            <div class="form-row">
-              <label>Video Prompt</label>
-              <textarea class="textarea" id="v-prompt" placeholder="Example: Show 5 ways to earn money online in Pakistan in cartoon style..."></textarea>
-            </div>
-          </div>
-          <div class="form-card">
-            <div class="form-title">🎨 Video Style <span style="font-size:11px;color:var(--muted);font-weight:400">(Select multiple)</span></div>
-            <div class="chips" id="style-chips">
-              <button class="chip on" onclick="toggleMultiChip(this)">🎨 Cartoon</button>
-              <button class="chip" onclick="toggleMultiChip(this)">⛩️ Anime</button>
-              <button class="chip" onclick="toggleMultiChip(this)">💠 3D</button>
-              <button class="chip" onclick="toggleMultiChip(this)">🎭 Realistic</button>
-            </div>
-          </div>
-          <div class="form-card">
-            <div class="form-title">🎙️ Voice & Language <span style="font-size:11px;color:var(--muted);font-weight:400">(Select multiple)</span></div>
-            <div class="form-row">
-              <label>Voice Language</label>
-              <div class="chips" id="lang-chips">
-                <button class="chip on" onclick="toggleMultiChip(this)">🇵🇰 Urdu</button>
-                <button class="chip" onclick="toggleMultiChip(this)">🇺🇸 English</button>
-                <button class="chip" onclick="toggleMultiChip(this)">🇸🇦 Arabic</button>
-                <button class="chip" onclick="toggleMultiChip(this)">🇪🇸 Spanish</button>
-              </div>
-            </div>
-          </div>
-          <div class="form-card">
-            <div class="form-title">📐 Quality Settings</div>
-            <div class="form-row">
-              <label>Resolution</label>
-              <div class="chips">
-                <button class="chip" onclick="selectChip(this)">720p</button>
-                <button class="chip on" onclick="selectChip(this)">1080p</button>
-                <button class="chip" onclick="selectChip(this)">4K</button>
-              </div>
-            </div>
-          </div>
-          <div class="action-row">
-            <button class="gen-btn" id="gen-btn" onclick="generateVideo()">⚡ Generate Video</button>
-            <button class="save-btn" onclick="saveProject()">💾 Save</button>
+      <main class="main">
+        <div class="page-title">Dashboard</div>
+        <div class="page-sub" id="welcome-msg">Welcome to FJ Pro AI Studio</div>
+        
+        <div class="banner">
+          <div class="banner-title">Create AI Videos for the World 🌍</div>
+          <div class="banner-sub">Cartoon, Anime, 3D — multilingual voice, subtitles & global export</div>
+          <div class="tags">
+            <span class="tag">Runway ML</span>
+            <span class="tag">Pika Labs</span>
+            <span class="tag">Luma AI</span>
+            <span class="tag">12+ Languages</span>
+            <span class="tag">4K Export</span>
+            <span class="tag">GDPR Ready</span>
           </div>
         </div>
-        <div class="preview-panel">
-          <div class="preview-title">👁️ Preview</div>
-          <div class="preview-screen" id="preview-screen">🎬</div>
-          <div class="info-row"><span>Style</span><span id="preview-style">🎨 Cartoon</span></div>
-          <div class="info-row"><span>Voice</span><span id="preview-voice">🇵🇰 Urdu</span></div>
-          <div class="info-row"><span>Resolution</span><span id="preview-res">1080p</span></div>
+
+        <div class="dash-grid">
+          <div class="dash-card">
+            <div class="dash-icon">🎬</div>
+            <div class="dash-title">New Video Project</div>
+            <div class="dash-desc">Write a prompt, choose style, add voice and generate.</div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-icon">💾</div>
+            <div class="dash-title">Saved Projects</div>
+            <div class="dash-desc" id="project-count">0 projects saved</div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-icon">🖼️</div>
+            <div class="dash-title">Video Gallery</div>
+            <div class="dash-desc">View your completed videos</div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-icon">⚙️</div>
+            <div class="dash-title">Settings</div>
+            <div class="dash-desc">Configure API keys & preferences</div>
+          </div>
         </div>
-      </div>
+      </main>
     </div>
-
-    <!-- ===== GALLERY ===== -->
-    <div id="page-gallery" class="page-content hidden">
-      <div class="page-title">🖼️ Video Gallery</div>
-      <div class="page-sub">All your saved projects</div>
-      <div id="gallery-container" class="gallery-grid"></div>
-      <div id="empty-gallery" style="text-align:center;padding:40px;color:var(--muted)">
-        <div style="font-size:64px;margin-bottom:16px">🎬</div>
-        <p>No videos saved yet. Create your first video!</p>
-        <button class="btn-primary" style="margin-top:16px" onclick="showPage('create')">Create Video →</button>
-      </div>
-    </div>
-
-    <!-- ===== SETTINGS ===== -->
-    <div id="page-settings" class="page-content hidden">
-      <div class="page-title">⚙️ Settings</div>
-      <div class="page-sub">Complete configuration for global use</div>
-
-      <div class="settings-section">
-        <div class="settings-title">👤 Account & Billing</div>
-        <div class="setting-row">
-          <div class="setting-info"><div class="setting-label">Email</div><div class="setting-desc" id="user-email">-</div></div>
-        </div>
-        <div class="setting-row">
-          <div class="setting-info"><div class="setting-label">Plan</div><div class="setting-desc">Current subscription</div></div>
-          <span class="plan-badge" id="plan-badge">Free</span>
-        </div>
-        <div class="setting-row">
-          <div class="setting-info"><div class="setting-label">Monthly Usage</div><div class="setting-desc">Videos generated this month</div></div>
-        </div>
-        <div style="margin-left:0;margin-top:8px">
-          <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-          <div class="progress-text" id="progress-text">0 / 10 videos used (0%)</div>
-        </div>
-        <div style="margin-top:12px">
-          <button class="btn-primary" onclick="showUpgrade()">⬆️ Upgrade to Pro</button>
-        </div>
-      </div>
-
-      <div class="settings-section">
-        <div class="settings-title">🎙️ Studio Preferences</div>
-        <div class="setting-row">
-          <div class="setting-info"><div class="setting-label">Dark Mode</div><div class="setting-desc">Easy on eyes</div></div>
-          <button class="toggle on" id="dark-toggle" onclick="toggleDarkMode()"></button>
-        </div>
-        <div class="setting-row">
-          <div class="setting-info"><div class="setting-label">Auto 4K Export</div><div class="setting-desc">Generate all videos in 4K</div></div>
-          <button class="toggle" onclick="this.classList.toggle('on');savePreference('auto4k',this.classList.contains('on'))"></button>
-        </div>
-        <div class="setting-row">
-          <div class="setting-info"><div class="setting-label">Default Subtitle Language</div><div class="setting-desc">Auto-applied to all videos</div></div>
-          <select class="select" id="default-lang" onchange="savePreference('defaultLang',this.value)">
-            <option value="ur">🇵🇰 Urdu</option>
-            <option value="en" selected>🇺🇸 English</option>
-            <option value="ar">🇸🇦 Arabic</option>
-            <option value="es">🇪🇸 Spanish</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="settings-section">
-        <div class="settings-title">🔑 AI APIs</div>
-        <div class="setting-row">
-          <div class="setting-info"><div class="setting-label">Runway ML API Key</div><div class="setting-desc">Best quality video generation</div></div>
-          <input class="input" id="runway-key" placeholder="sk-..." onchange="saveAPIKey('runway',this.value)">
-        </div>
-        <div class="setting-row">
-          <div class="setting-info"><div class="setting-label">ElevenLabs Voice API</div><div class="setting-desc">Multilingual voice generation</div></div>
-          <input class="input" id="eleven-key" placeholder="el-..." onchange="saveAPIKey('eleven',this.value)">
-        </div>
-      </div>
-
-      <div class="settings-section">
-        <div class="settings-title">🔒 Privacy & Compliance</div>
-        <div class="setting-row">
-          <div class="setting-info"><div class="setting-label">Content Safety Filter</div><div class="setting-desc">Block explicit content</div></div>
-          <button class="toggle on" onclick="this.classList.toggle('on');savePreference('safetyFilter',this.classList.contains('on'))"></button>
-        </div>
-        <div class="setting-row">
-          <div class="setting-info"><div class="setting-label">Export My Data</div><div class="setting-desc">Download as JSON</div></div>
-          <button class="btn-ghost" onclick="exportData()">📥 Export</button>
-        </div>
-        <div class="setting-row">
-          <div class="setting-info"><div class="setting-label">Delete Account</div><div class="setting-desc">Permanently remove everything</div></div>
-          <button class="btn-danger" onclick="confirmDelete()">🗑️ Delete</button>
-        </div>
-        <div class="warning-box">
-          ⚠️ GDPR & CCPA: You have the right to access, export, and delete your personal data. Contact: privacy@fjprostudio.com
-        </div>
-      </div>
-    </div>
-
-  </main>
-</div>
-</div>
-
-<!-- ===== TOAST ===== -->
-<div id="toast" class="toast hidden"></div>
-
-<!-- ===== KEYBOARD SHORTCUT HINT ===== -->
-<div class="shortcut-hint">⌨️ Ctrl+S to save</div>
-
-<!-- ===== UPGRADE MODAL ===== -->
-<div id="upgrade-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;align-items:center;justify-content:center">
-  <div style="background:var(--card);border:1px solid var(--border);border-radius:20px;padding:40px;max-width:500px;width:90%;text-align:center">
-    <h2 style="font-size:24px;margin-bottom:8px">🚀 Upgrade to Pro</h2>
-    <p style="color:var(--muted);margin-bottom:24px">Unlock unlimited videos & premium features</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px">
-        <h3 style="font-size:18px;color:var(--violet2)">Free</h3>
-        <p style="font-size:24px;font-weight:900">$0</p>
-        <p style="font-size:12px;color:var(--muted)">10 videos/month</p>
-      </div>
-      <div style="background:var(--surface);border:2px solid var(--violet);border-radius:12px;padding:16px">
-        <h3 style="font-size:18px;color:var(--violet2)">Pro</h3>
-        <p style="font-size:24px;font-weight:900">$19.99</p>
-        <p style="font-size:12px;color:var(--muted)">Unlimited videos</p>
-      </div>
-    </div>
-    <button class="btn-primary" onclick="upgradePlan()" style="width:100%;padding:14px;font-size:16px">⬆️ Subscribe Now</button>
-    <button class="btn-ghost" onclick="closeUpgrade()" style="margin-top:12px">Cancel</button>
   </div>
-</div>
 
-<script>
-// ===== SUPABASE CONFIG =====
-const SUPABASE_URL = 'https://enziugrpiknqyohlypsz.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVueml1Z3JwaWtucXlvaGx5cHN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3MjU3OTMsImV4cCI6MjA5ODMwMTc5M30.hRrbmTf6bdyO1dSkwRYbZ_UAasPNt9wGohEw_2BsXeU';
+  <!-- ===== TOAST ===== -->
+  <div id="toast" class="toast hidden"></div>
 
-const supabase = supabaseClient.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  <script>
+    // ===== SUPABASE CONFIG =====
+    const SUPABASE_URL = 'https://enziugrpiknqyohlypsz.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVueml1Z3JwaWtucXlvaGx5cHN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3MjU3OTMsImV4cCI6MjA5ODMwMTc5M30.hRrbmTf6bdyO1dSkwRYbZ_UAasPNt9wGohEw_2BsXeU';
 
-// ===== STATE =====
-var authMode = 'login';
-var currentUser = null;
-var currentPlan = 'free';
-var videoCount = 0;
-var videoLimit = 10;
+    var supabase = supabaseClient.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// ===== LOGIN =====
-function toggleAuthMode(){
-  authMode = authMode === 'login' ? 'signup' : 'login';
-  var nf = document.getElementById('signup-name');
-  var btn = document.querySelector('.btn-full.primary');
-  var gbtn = document.querySelector('.btn-full.ghost');
-  if(authMode === 'signup'){
-    nf.classList.remove('hidden');
-    btn.textContent = '✨ Create Account';
-    gbtn.textContent = '← Back to Login';
-  } else {
-    nf.classList.add('hidden');
-    btn.textContent = '🔐 Login';
-    gbtn.textContent = 'Create Account →';
-  }
-}
+    // ===== STATE =====
+    var authMode = 'login';
+    var currentUser = null;
 
-function validateEmail(el) {
-  var email = el.value;
-  var valid = email.includes('@') && email.includes('.');
-  el.className = valid ? 'valid' : 'invalid';
-  document.getElementById('email-error').style.display = valid ? 'none' : 'block';
-  return valid;
-}
-
-function validatePassword(el) {
-  var valid = el.value.length >= 6;
-  el.className = valid ? 'valid' : 'invalid';
-  document.getElementById('pass-error').style.display = valid ? 'none' : 'block';
-  return valid;
-}
-
-async function doLogin() {
-  var email = document.getElementById('input-email').value;
-  var password = document.getElementById('input-password').value;
-  
-  if(!email || !password){ showToast('Enter email and password'); return; }
-  if(!validateEmail(document.getElementById('input-email'))){ showToast('Please enter valid email'); return; }
-  if(!validatePassword(document.getElementById('input-password'))){ showToast('Password must be 6+ characters'); return; }
-  
-  try {
-    var result;
-    if(authMode === 'signup') {
-      var name = document.getElementById('input-name').value;
-      result = await supabase.auth.signUp({
-        email: email,
-        password: password,
-        options: {
-          data: { full_name: name || 'User' }
-        }
-      });
-    } else {
-      result = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password
-      });
+    // ===== TOGGLE AUTH MODE =====
+    function toggleAuthMode() {
+      authMode = authMode === 'login' ? 'signup' : 'login';
+      var nf = document.getElementById('signup-name');
+      var btn = document.querySelector('.btn-full.primary');
+      var gbtn = document.querySelector('.btn-full.ghost');
+      if (authMode === 'signup') {
+        nf.classList.remove('hidden');
+        btn.textContent = '✨ Create Account';
+        gbtn.textContent = '← Back to Login';
+      } else {
+        nf.classList.add('hidden');
+        btn.textContent = '🔐 Login';
+        gbtn.textContent = 'Create Account →';
+      }
     }
-    
-    if(result.error) { showToast('❌ ' + result.error.message); return; }
-    
-    currentUser = result.data.user;
-    
-    // Check if user exists in database
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', currentUser.id)
-      .single();
-    
-    if(userError && userError.code !== 'PGRST116') {
-      console.error('Error fetching user:', userError);
-    }
-    
-    if(!userData) {
-      // Create user in database
-      await supabase.from('users').insert({
-        id: currentUser.id,
-        email: currentUser.email,
-        plan: 'free',
-        videos_limit: 10,
-        videos_used: 0
-      });
-      currentPlan = 'free';
-      videoLimit = 10;
-      videoCount = 0;
-    } else {
-      currentPlan = userData.plan || 'free';
-      videoLimit = userData.videos_limit || 10;
-      videoCount = userData.videos_used || 0;
-    }
-    
-    localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('userId', currentUser.id);
-    
-    document.getElementById('user-email').textContent = currentUser.email;
-    document.getElementById('page-login').classList.remove('active');
-    document.getElementById('page-app').classList.add('active');
-    
-    loadPreferences();
-    updateDashboard();
-    updateGallery();
-    updateProgress();
-    showToast('✅ Welcome to FJ Pro!');
-    
-  } catch(error) {
-    showToast('❌ ' + error.message);
-  }
-}
 
-function doLogout() {
-  supabase.auth.signOut();
-  localStorage.setItem('isLoggedIn', 'false');
-  document.getElementById('page-app').classList.remove('active');
-  document.getElementById('page-login').classList.add('active');
-  showToast('Logged out');
-}
+    // ===== LOGIN / SIGNUP =====
+    async function doLogin() {
+      var email = document.getElementById('input-email').value;
+      var password = document.getElementById('input-password').value;
 
-// ===== DASHBOARD =====
-function updateDashboard() {
-  document.getElementById('project-count').textContent = videoCount + ' videos used this month';
-  document.getElementById('gallery-count').textContent = 'View your ' + videoCount + ' videos';
-  document.getElementById('plan-badge').textContent = currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1);
-  document.getElementById('welcome-msg').textContent = 'Welcome to FJ Pro AI Studio - ' + currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1) + ' Plan';
-}
+      if (!email || !password) {
+        showToast('❌ Please enter email and password');
+        return;
+      }
 
-// ===== PROGRESS =====
-function updateProgress() {
-  var percent = Math.min((videoCount / videoLimit) * 100, 100);
-  document.getElementById('progress-fill').style.width = percent + '%';
-  document.getElementById('progress-text').textContent = 
-    videoCount + ' / ' + videoLimit + ' videos used (' + Math.round(percent) + '%)';
-  
-  // Disable generate if limit reached
-  var genBtn = document.getElementById('gen-btn');
-  if(videoCount >= videoLimit && currentPlan === 'free') {
-    genBtn.disabled = true;
-    genBtn.textContent = '⚠️ Upgrade to Pro';
-  } else {
-    genBtn.disabled = false;
-    genBtn.textContent = '⚡ Generate Video';
-  }
-}
-
-// ===== SAVE PROJECT (with Supabase) =====
-async function saveProject() {
-  if(!currentUser) { showToast('Please login first'); return; }
-  
-  var name = document.getElementById('v-name').value || 'Untitled';
-  var prompt = document.getElementById('v-prompt').value || 'No prompt';
-  
-  var styles = document.querySelectorAll('#style-chips .chip.on');
-  var style = Array.from(styles).map(c => c.textContent.trim()).join(', ');
-  
-  var voices = document.querySelectorAll('#lang-chips .chip.on');
-  var voice = Array.from(voices).map(c => c.textContent.trim()).join(', ');
-  
-  var res = document.querySelector('#page-create .chips .chip.on:not(.multi)');
-  var resolution = res ? res.textContent.trim() : '1080p';
-  
-  try {
-    const { data, error } = await supabase.from('videos').insert({
-      user_id: currentUser.id,
-      name: name,
-      prompt: prompt,
-      style: style || 'Cartoon',
-      voice: voice || 'Urdu',
-      resolution: resolution,
-      video_url: 'pending'
-    });
-    
-    if(error) { showToast('❌ ' + error.message); return; }
-    
-    // Update video count
-    videoCount++;
-    await supabase.from('users')
-      .update({ videos_used: videoCount })
-      .eq('id', currentUser.id);
-    
-    updateDashboard();
-    updateGallery();
-    updateProgress();
-    showToast('💾 Project "' + name + '" saved!');
-    
-  } catch(error) {
-    showToast('❌ ' + error.message);
-  }
-}
-
-// ===== GENERATE VIDEO =====
-function generateVideo() {
-  var prompt = document.getElementById('v-prompt').value;
-  if(!prompt) { showToast('Please write a prompt first!'); return; }
-  
-  if(videoCount >= videoLimit && currentPlan === 'free') {
-    showToast('⚠️ Free limit reached! Upgrade to Pro.');
-    showUpgrade();
-    return;
-  }
-  
-  showToast('⚡ Video generation starting... (Connect Runway API for real videos)');
-  setTimeout(function() {
-    showToast('✅ Video generated! Click Save to store it.');
-  }, 2000);
-}
-
-// ===== GALLERY (Fetch from Supabase) =====
-async function updateGallery() {
-  if(!currentUser) return;
-  
-  var container = document.getElementById('gallery-container');
-  var empty = document.getElementById('empty-gallery');
-  
-  try {
-    const { data, error } = await supabase
-      .from('videos')
-      .select('*')
-      .eq('user_id', currentUser.id)
-      .order('created_at', { ascending: false });
-    
-    if(error) { console.error('Gallery error:', error); return; }
-    
-    if(!data || data.length === 0) {
-      container.innerHTML = '';
-      empty.style.display = 'block';
-      return;
-    }
-    
-    empty.style.display = 'none';
-    
-    container.innerHTML = data.map(function(p) {
-      var date = new Date(p.created_at).toLocaleDateString();
-      return `
-        <div class="gallery-item">
-          <div class="video-icon">🎬</div>
-          <div class="video-name">${p.name}</div>
-          <div style="font-size:11px;color:var(--muted);margin:4px 0">${p.style} · ${p.voice}</div>
-          <div class="video-date">${date}</div>
-          <button class="btn-ghost" style="margin-top:8px;padding:4px 12px;font-size:11px" onclick="deleteProject('${p.id}')">🗑️</button>
-        </div>
-      `;
-    }).join('');
-    
-  } catch(error) {
-    console.error('Gallery error:', error);
-  }
-}
-
-async function deleteProject(id) {
-  if(!confirm('Delete this video?')) return;
-  
-  try {
-    const { error } = await supabase
-      .from('videos')
-      .delete()
-      .eq('id', id)
-      .eq('user_id', currentUser.id);
-    
-    if(error) { showToast('❌ ' + error.message); return; }
-    
-    videoCount = Math.max(0, videoCount - 1);
-    await supabase.from('users')
-      .update({ videos_used: videoCount })
-      .eq('id', currentUser.id);
-    
-    updateGallery();
-    updateDashboard();
-    updateProgress();
-    showToast('🗑️ Project deleted');
-    
-  } catch(error) {
-    showToast('❌ ' + error.message);
-  }
-}
-
-// ===== UPGRADE =====
-function showUpgrade() {
-  document.getElementById('upgrade-modal').style.display = 'flex';
-}
-
-function closeUpgrade() {
-  document.getElementById('upgrade-modal').style.display = 'none';
-}
-
-function upgradePlan() {
-  showToast('🚀 Redirecting to Stripe checkout...');
-  closeUpgrade();
-  // In production: Redirect to Stripe Checkout
-  // window.location.href = '/api/create-checkout?plan=pro';
-}
-
-// ===== EXPORT DATA =====
-function exportData() {
-  var data = {
-    user: currentUser,
-    plan: currentPlan,
-    videos_used: videoCount,
-    exportedAt: new Date().toISOString()
-  };
-  
-  var blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = 'fjpro-data-export.json';
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('📥 Data exported successfully!');
-}
-
-// ===== CONFIRM DELETE =====
-function confirmDelete() {
-  if(confirm('⚠️ Permanently delete account & all data?')) {
-    showToast('🗑️ Account deletion requested');
-    // In production: Delete from Supabase
-    setTimeout(doLogout, 1000);
-  }
-}
-
-// ===== PREFERENCES =====
-function savePreference(key, value) {
-  localStorage.setItem('pref_' + key, JSON.stringify(value));
-}
-
-function getPreference(key, defaultVal) {
-  var val = localStorage.getItem('pref_' + key);
-  return val ? JSON.parse(val) : defaultVal;
-}
-
-function saveAPIKey(service, key) {
-  localStorage.setItem('api_' + service, key);
-  showToast('🔑 ' + service + ' key saved!');
-}
-
-function loadPreferences() {
-  // Dark mode
-  var dark = getPreference('darkMode', true);
-  if(!dark) {
-    document.getElementById('dark-toggle').classList.remove('on');
-    document.documentElement.style.setProperty('--bg', '#f0f2f5');
-    document.documentElement.style.setProperty('--surface', '#ffffff');
-    document.documentElement.style.setProperty('--card', '#ffffff');
-    document.documentElement.style.setProperty('--text', '#1a1a2e');
-    document.documentElement.style.setProperty('--border', '#d1d5db');
-    document.documentElement.style.setProperty('--muted', '#6b7280');
-  }
-  
-  // Default language
-  var lang = getPreference('defaultLang', 'en');
-  document.getElementById('default-lang').value = lang;
-  
-  // API keys
-  document.getElementById('runway-key').value = localStorage.getItem('api_runway') || '';
-  document.getElementById('eleven-key').value = localStorage.getItem('api_eleven') || '';
-}
-
-function toggleDarkMode() {
-  var toggle = document.getElementById('dark-toggle');
-  toggle.classList.toggle('on');
-  var isDark = toggle.classList.contains('on');
-  savePreference('darkMode', isDark);
-  
-  if(isDark) {
-    document.documentElement.style.setProperty('--bg', '#08090f');
-    document.documentElement.style.setProperty('--surface', '#10121c');
-    document.documentElement.style.setProperty('--card', '#161925');
-    document.documentElement.style.setProperty('--text', '#e8eaf0');
-    document.documentElement.style.setProperty('--border', '#232640');
-    document.documentElement.style.setProperty('--muted', '#6b7280');
-  } else {
-    document.documentElement.style.setProperty('--bg', '#f0f2f5');
-    document.documentElement.style.setProperty('--surface', '#ffffff');
-    document.documentElement.style.setProperty('--card', '#ffffff');
-    document.documentElement.style.setProperty('--text', '#1a1a2e');
-    document.documentElement.style.setProperty('--border', '#d1d5db');
-    document.documentElement.style.setProperty('--muted', '#6b7280');
-  }
-  showToast(isDark ? '🌙 Dark mode' : '☀️ Light mode');
-}
-
-// ===== NAVIGATION =====
-function showPage(name){
-  var pages = ['dashboard','create','gallery','settings'];
-  pages.forEach(function(p){
-    var el = document.getElementById('page-'+p);
-    var nav = document.getElementById('nav-'+p);
-    if(el) el.classList.add('hidden');
-    if(nav) nav.classList.remove('active');
-  });
-  var page = document.getElementById('page-'+name);
-  var nav = document.getElementById('nav-'+name);
-  if(page) page.classList.remove('hidden');
-  if(nav) nav.classList.add('active');
-  localStorage.setItem('currentPage', name);
-  
-  if(name === 'gallery') updateGallery();
-  if(name === 'dashboard') updateDashboard();
-}
-
-// ===== CHIPS =====
-function selectChip(el){
-  el.parentElement.querySelectorAll('.chip').forEach(function(c){c.classList.remove('on')});
-  el.classList.add('on');
-  updatePreview();
-}
-
-function toggleMultiChip(el){
-  el.classList.toggle('on');
-  el.classList.toggle('multi');
-  updatePreview();
-}
-
-function updatePreview() {
-  var styles = document.querySelectorAll('#style-chips .chip.on');
-  var styleTexts = Array.from(styles).map(c => c.textContent.trim()).join(' + ');
-  document.getElementById('preview-style').textContent = styleTexts || 'None selected';
-  
-  var voices = document.querySelectorAll('#lang-chips .chip.on');
-  var voiceTexts = Array.from(voices).map(c => c.textContent.trim()).join(' + ');
-  document.getElementById('preview-voice').textContent = voiceTexts || 'None selected';
-  
-  var res = document.querySelector('#page-create .chips .chip.on:not(.multi)');
-  document.getElementById('preview-res').textContent = res ? res.textContent.trim() : '1080p';
-}
-
-// ===== TOAST =====
-function showToast(msg){
-  var t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.remove('hidden');
-  clearTimeout(t._timeout);
-  t._timeout = setTimeout(function(){t.classList.add('hidden')}, 3000);
-}
-
-// ===== KEYBOARD SHORTCUTS =====
-document.addEventListener('keydown', function(e) {
-  if(e.ctrlKey && e.key === 's') {
-    e.preventDefault();
-    saveProject();
-  }
-  if(e.ctrlKey && ['1','2','3','4'].includes(e.key)) {
-    e.preventDefault();
-    var pages = ['dashboard','create','gallery','settings'];
-    showPage(pages[parseInt(e.key)-1]);
-  }
-  if(e.key === 'Escape') {
-    closeUpgrade();
-  }
-});
-
-// ===== AUTO-LOGIN =====
-window.onload = function() {
-  var loggedIn = localStorage.getItem('isLoggedIn');
-  if(loggedIn === 'true') {
-    var userId = localStorage.getItem('userId');
-    if(userId) {
-      // Auto-login with session
-      supabase.auth.getSession().then(({ data, error }) => {
-        if(data.session) {
-          currentUser = data.session.user;
-          document.getElementById('user-email').textContent = currentUser.email;
-          document.getElementById('page-login').classList.remove('active');
-          document.getElementById('page-app').classList.add('active');
-          var lastPage = localStorage.getItem('currentPage') || 'dashboard';
-          showPage(lastPage);
-          loadPreferences();
-          // Fetch user data
-          supabase.from('users').select('*').eq('id', currentUser.id).single()
-            .then(({ data }) => {
-              if(data) {
-                currentPlan = data.plan || 'free';
-                videoLimit = data.videos_limit || 10;
-                videoCount = data.videos_used || 0;
-                updateDashboard();
-                updateGallery();
-                updateProgress();
-              }
-            });
+      try {
+        var result;
+        if (authMode === 'signup') {
+          var name = document.getElementById('input-name').value || 'User';
+          result = await supabase.auth.signUp({
+            email: email,
+            password: password,
+            options: {
+              data: { full_name: name }
+            }
+          });
         } else {
-          localStorage.setItem('isLoggedIn', 'false');
+          result = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password
+          });
         }
-      });
+
+        if (result.error) {
+          showToast('❌ ' + result.error.message);
+          return;
+        }
+
+        currentUser = result.data.user;
+        
+        // Create user in users table (on first signup)
+        if (authMode === 'signup') {
+          await supabase.from('users').upsert({
+            id: currentUser.id,
+            email: currentUser.email,
+            plan: 'free',
+            videos_limit: 10,
+            videos_used: 0
+          });
+        }
+
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userId', currentUser.id);
+        localStorage.setItem('userEmail', currentUser.email);
+
+        showToast('✅ Login successful! Loading dashboard...');
+
+        // Show dashboard after 1 second
+        setTimeout(function() {
+          document.getElementById('page-login').classList.remove('active');
+          document.getElementById('page-dashboard').classList.add('active');
+          document.getElementById('welcome-msg').textContent = 'Welcome, ' + (currentUser.user_metadata?.full_name || currentUser.email) + '!';
+        }, 500);
+
+      } catch (error) {
+        showToast('❌ ' + error.message);
+      }
     }
-  }
-  updatePreview();
-};
-</script>
+
+    // ===== LOGOUT =====
+    async function doLogout() {
+      await supabase.auth.signOut();
+      localStorage.setItem('isLoggedIn', 'false');
+      currentUser = null;
+      
+      // Clear form
+      document.getElementById('input-email').value = '';
+      document.getElementById('input-password').value = '';
+      
+      document.getElementById('page-dashboard').classList.remove('active');
+      document.getElementById('page-login').classList.add('active');
+      showToast('✅ Logged out');
+    }
+
+    // ===== TOAST =====
+    function showToast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.remove('hidden');
+      clearTimeout(t._timeout);
+      t._timeout = setTimeout(function() {
+        t.classList.add('hidden');
+      }, 5000);
+    }
+
+    // ===== AUTO-LOGIN =====
+    window.onload = async function() {
+      var loggedIn = localStorage.getItem('isLoggedIn');
+      if (loggedIn === 'true') {
+        try {
+          var { data, error } = await supabase.auth.getSession();
+          if (data.session) {
+            currentUser = data.session.user;
+            document.getElementById('page-login').classList.remove('active');
+            document.getElementById('page-dashboard').classList.add('active');
+            document.getElementById('welcome-msg').textContent = 'Welcome, ' + (currentUser.user_metadata?.full_name || currentUser.email) + '!';
+          } else {
+            localStorage.setItem('isLoggedIn', 'false');
+          }
+        } catch (error) {
+          console.error('Session error:', error);
+        }
+      }
+    };
+  </script>
+
 </body>
 </html>
