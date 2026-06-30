@@ -1,11 +1,13 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FJ Pro AI Studio - Global AI Video Creator</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-/* ===== SAME CSS AS BEFORE + EXTRA ===== */
+/* ===== SAME CSS AS BEFORE ===== */
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#08090f;--surface:#10121c;--card:#161925;--border:#232640;--violet:#7c5cfc;--violet2:#a78bfa;--amber:#f59e0b;--text:#e8eaf0;--muted:#6b7280;--danger:#ef4444;--success:#10b981;--grad:linear-gradient(135deg,#7c5cfc,#a78bfa,#f59e0b)}
 body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;min-height:100vh}
@@ -63,9 +65,6 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;mi
 .plan-badge{background:rgba(16,185,129,.15);color:var(--success);padding:4px 12px;border-radius:8px;font-size:12px;font-weight:700}
 .warning-box{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:10px;padding:12px 16px;margin-top:16px;font-size:12px;color:#fca5a5;line-height:1.6}
 .info-box{background:rgba(124,92,252,.08);border:1px solid rgba(124,92,252,.25);border-radius:10px;padding:12px 16px;margin-top:16px;font-size:12px;color:var(--violet2);line-height:1.6}
-.links-row{margin-top:16px;padding-top:16px;border-top:1px solid var(--border);display:flex;gap:16px;flex-wrap:wrap}
-.link-item{color:var(--muted);font-size:12px;text-decoration:none;transition:color .2s}
-.link-item:hover{color:var(--violet2)}
 
 /* ===== CREATE VIDEO ===== */
 .create-grid{display:grid;grid-template-columns:1fr 300px;gap:24px}
@@ -78,10 +77,11 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;mi
 .chips{display:flex;gap:8px;flex-wrap:wrap}
 .chip{padding:7px 14px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);transition:all .15s}
 .chip.on{border-color:var(--violet);background:rgba(124,92,252,.15);color:var(--violet2)}
-.chip.multi{ /* NEW - for multiple selection */ border-color:var(--success);background:rgba(16,185,129,.15);color:var(--success)}
+.chip.multi{border-color:var(--success);background:rgba(16,185,129,.15);color:var(--success)}
 .action-row{display:flex;gap:12px}
 .gen-btn{flex:2;padding:14px;border-radius:12px;font-size:15px;font-weight:700;border:none;cursor:pointer;background:var(--grad);color:#fff}
 .gen-btn:hover{opacity:.9}
+.gen-btn:disabled{opacity:0.4;cursor:not-allowed}
 .save-btn{flex:1;padding:14px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;background:var(--card);border:1.5px solid var(--violet);color:var(--violet2)}
 
 /* ===== GALLERY ===== */
@@ -184,7 +184,7 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;mi
     <!-- ===== DASHBOARD ===== -->
     <div id="page-dashboard" class="page-content">
       <div class="page-title">Dashboard</div>
-      <div class="page-sub">Welcome to FJ Pro AI Studio</div>
+      <div class="page-sub" id="welcome-msg">Welcome to FJ Pro AI Studio</div>
       <div class="banner">
         <div class="banner-label">AI Video Studio</div>
         <div class="banner-title">Create AI Videos for the World 🌍</div>
@@ -268,7 +268,7 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;mi
             </div>
           </div>
           <div class="action-row">
-            <button class="gen-btn" onclick="generateVideo()">⚡ Generate Video</button>
+            <button class="gen-btn" id="gen-btn" onclick="generateVideo()">⚡ Generate Video</button>
             <button class="save-btn" onclick="saveProject()">💾 Save</button>
           </div>
         </div>
@@ -282,13 +282,11 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;mi
       </div>
     </div>
 
-    <!-- ===== GALLERY PAGE (NEW) ===== -->
+    <!-- ===== GALLERY ===== -->
     <div id="page-gallery" class="page-content hidden">
       <div class="page-title">🖼️ Video Gallery</div>
       <div class="page-sub">All your saved projects</div>
-      <div id="gallery-container" class="gallery-grid">
-        <!-- Videos will be dynamically inserted here -->
-      </div>
+      <div id="gallery-container" class="gallery-grid"></div>
       <div id="empty-gallery" style="text-align:center;padding:40px;color:var(--muted)">
         <div style="font-size:64px;margin-bottom:16px">🎬</div>
         <p>No videos saved yet. Create your first video!</p>
@@ -315,7 +313,10 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;mi
         </div>
         <div style="margin-left:0;margin-top:8px">
           <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-          <div class="progress-text" id="progress-text">0 / 100 videos used (0%)</div>
+          <div class="progress-text" id="progress-text">0 / 10 videos used (0%)</div>
+        </div>
+        <div style="margin-top:12px">
+          <button class="btn-primary" onclick="showUpgrade()">⬆️ Upgrade to Pro</button>
         </div>
       </div>
 
@@ -353,18 +354,6 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;mi
       </div>
 
       <div class="settings-section">
-        <div class="settings-title">🗄️ Database</div>
-        <div class="setting-row">
-          <div class="setting-info"><div class="setting-label">Supabase URL</div><div class="setting-desc">Your project endpoint</div></div>
-          <input class="input" id="supabase-url" placeholder="https://...supabase.co" onchange="savePreference('supabaseUrl',this.value)">
-        </div>
-        <div class="setting-row">
-          <div class="setting-info"><div class="setting-label">Anon Key</div><div class="setting-desc">Public key</div></div>
-          <input class="input" id="supabase-key" placeholder="eyJ..." onchange="savePreference('supabaseKey',this.value)">
-        </div>
-      </div>
-
-      <div class="settings-section">
         <div class="settings-title">🔒 Privacy & Compliance</div>
         <div class="setting-row">
           <div class="setting-info"><div class="setting-label">Content Safety Filter</div><div class="setting-desc">Block explicit content</div></div>
@@ -394,28 +383,41 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;mi
 <!-- ===== KEYBOARD SHORTCUT HINT ===== -->
 <div class="shortcut-hint">⌨️ Ctrl+S to save</div>
 
+<!-- ===== UPGRADE MODAL ===== -->
+<div id="upgrade-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:20px;padding:40px;max-width:500px;width:90%;text-align:center">
+    <h2 style="font-size:24px;margin-bottom:8px">🚀 Upgrade to Pro</h2>
+    <p style="color:var(--muted);margin-bottom:24px">Unlock unlimited videos & premium features</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px">
+        <h3 style="font-size:18px;color:var(--violet2)">Free</h3>
+        <p style="font-size:24px;font-weight:900">$0</p>
+        <p style="font-size:12px;color:var(--muted)">10 videos/month</p>
+      </div>
+      <div style="background:var(--surface);border:2px solid var(--violet);border-radius:12px;padding:16px">
+        <h3 style="font-size:18px;color:var(--violet2)">Pro</h3>
+        <p style="font-size:24px;font-weight:900">$19.99</p>
+        <p style="font-size:12px;color:var(--muted)">Unlimited videos</p>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="upgradePlan()" style="width:100%;padding:14px;font-size:16px">⬆️ Subscribe Now</button>
+    <button class="btn-ghost" onclick="closeUpgrade()" style="margin-top:12px">Cancel</button>
+  </div>
+</div>
+
 <script>
+// ===== SUPABASE CONFIG =====
+const SUPABASE_URL = 'https://enziugrpiknqyohlypsz.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVueml1Z3JwaWtucXlvaGx5cHN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3MjU3OTMsImV4cCI6MjA5ODMwMTc5M30.hRrbmTf6bdyO1dSkwRYbZ_UAasPNt9wGohEw_2BsXeU';
+
+const supabase = supabaseClient.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 // ===== STATE =====
 var authMode = 'login';
-var currentUser = '';
-var projects = JSON.parse(localStorage.getItem('projects')) || [];
-var videoCount = projects.length;
-
-// ===== LOCALSTORAGE HELPERS =====
-function savePreference(key, value) {
-  localStorage.setItem('pref_' + key, JSON.stringify(value));
-}
-function getPreference(key, defaultVal) {
-  var val = localStorage.getItem('pref_' + key);
-  return val ? JSON.parse(val) : defaultVal;
-}
-function saveAPIKey(service, key) {
-  localStorage.setItem('api_' + service, key);
-  showToast('🔑 ' + service + ' key saved!');
-}
-function getAPIKey(service) {
-  return localStorage.getItem('api_' + service) || '';
-}
+var currentUser = null;
+var currentPlan = 'free';
+var videoCount = 0;
+var videoLimit = 10;
 
 // ===== LOGIN =====
 function toggleAuthMode(){
@@ -449,36 +451,307 @@ function validatePassword(el) {
   return valid;
 }
 
-function doLogin(){
-  var e = document.getElementById('input-email').value;
-  var p = document.getElementById('input-password').value;
-  if(!e || !p){showToast('Enter email and password');return;}
-  if(!validateEmail(document.getElementById('input-email'))){showToast('Please enter valid email');return;}
-  if(!validatePassword(document.getElementById('input-password'))){showToast('Password must be 6+ characters');return;}
+async function doLogin() {
+  var email = document.getElementById('input-email').value;
+  var password = document.getElementById('input-password').value;
   
-  currentUser = e;
-  localStorage.setItem('userEmail', e);
-  localStorage.setItem('isLoggedIn', 'true');
+  if(!email || !password){ showToast('Enter email and password'); return; }
+  if(!validateEmail(document.getElementById('input-email'))){ showToast('Please enter valid email'); return; }
+  if(!validatePassword(document.getElementById('input-password'))){ showToast('Password must be 6+ characters'); return; }
   
-  document.getElementById('user-email').textContent = e;
-  document.getElementById('page-login').classList.remove('active');
-  document.getElementById('page-app').classList.add('active');
-  
-  // Load saved preferences
-  loadPreferences();
-  updateGallery();
-  updateDashboard();
-  showToast('Welcome to FJ Pro! ✓');
+  try {
+    var result;
+    if(authMode === 'signup') {
+      var name = document.getElementById('input-name').value;
+      result = await supabase.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+          data: { full_name: name || 'User' }
+        }
+      });
+    } else {
+      result = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
+    }
+    
+    if(result.error) { showToast('❌ ' + result.error.message); return; }
+    
+    currentUser = result.data.user;
+    
+    // Check if user exists in database
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', currentUser.id)
+      .single();
+    
+    if(userError && userError.code !== 'PGRST116') {
+      console.error('Error fetching user:', userError);
+    }
+    
+    if(!userData) {
+      // Create user in database
+      await supabase.from('users').insert({
+        id: currentUser.id,
+        email: currentUser.email,
+        plan: 'free',
+        videos_limit: 10,
+        videos_used: 0
+      });
+      currentPlan = 'free';
+      videoLimit = 10;
+      videoCount = 0;
+    } else {
+      currentPlan = userData.plan || 'free';
+      videoLimit = userData.videos_limit || 10;
+      videoCount = userData.videos_used || 0;
+    }
+    
+    localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('userId', currentUser.id);
+    
+    document.getElementById('user-email').textContent = currentUser.email;
+    document.getElementById('page-login').classList.remove('active');
+    document.getElementById('page-app').classList.add('active');
+    
+    loadPreferences();
+    updateDashboard();
+    updateGallery();
+    updateProgress();
+    showToast('✅ Welcome to FJ Pro!');
+    
+  } catch(error) {
+    showToast('❌ ' + error.message);
+  }
 }
 
-function doLogout(){
+function doLogout() {
+  supabase.auth.signOut();
   localStorage.setItem('isLoggedIn', 'false');
   document.getElementById('page-app').classList.remove('active');
   document.getElementById('page-login').classList.add('active');
   showToast('Logged out');
 }
 
-// ===== LOAD PREFERENCES =====
+// ===== DASHBOARD =====
+function updateDashboard() {
+  document.getElementById('project-count').textContent = videoCount + ' videos used this month';
+  document.getElementById('gallery-count').textContent = 'View your ' + videoCount + ' videos';
+  document.getElementById('plan-badge').textContent = currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1);
+  document.getElementById('welcome-msg').textContent = 'Welcome to FJ Pro AI Studio - ' + currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1) + ' Plan';
+}
+
+// ===== PROGRESS =====
+function updateProgress() {
+  var percent = Math.min((videoCount / videoLimit) * 100, 100);
+  document.getElementById('progress-fill').style.width = percent + '%';
+  document.getElementById('progress-text').textContent = 
+    videoCount + ' / ' + videoLimit + ' videos used (' + Math.round(percent) + '%)';
+  
+  // Disable generate if limit reached
+  var genBtn = document.getElementById('gen-btn');
+  if(videoCount >= videoLimit && currentPlan === 'free') {
+    genBtn.disabled = true;
+    genBtn.textContent = '⚠️ Upgrade to Pro';
+  } else {
+    genBtn.disabled = false;
+    genBtn.textContent = '⚡ Generate Video';
+  }
+}
+
+// ===== SAVE PROJECT (with Supabase) =====
+async function saveProject() {
+  if(!currentUser) { showToast('Please login first'); return; }
+  
+  var name = document.getElementById('v-name').value || 'Untitled';
+  var prompt = document.getElementById('v-prompt').value || 'No prompt';
+  
+  var styles = document.querySelectorAll('#style-chips .chip.on');
+  var style = Array.from(styles).map(c => c.textContent.trim()).join(', ');
+  
+  var voices = document.querySelectorAll('#lang-chips .chip.on');
+  var voice = Array.from(voices).map(c => c.textContent.trim()).join(', ');
+  
+  var res = document.querySelector('#page-create .chips .chip.on:not(.multi)');
+  var resolution = res ? res.textContent.trim() : '1080p';
+  
+  try {
+    const { data, error } = await supabase.from('videos').insert({
+      user_id: currentUser.id,
+      name: name,
+      prompt: prompt,
+      style: style || 'Cartoon',
+      voice: voice || 'Urdu',
+      resolution: resolution,
+      video_url: 'pending'
+    });
+    
+    if(error) { showToast('❌ ' + error.message); return; }
+    
+    // Update video count
+    videoCount++;
+    await supabase.from('users')
+      .update({ videos_used: videoCount })
+      .eq('id', currentUser.id);
+    
+    updateDashboard();
+    updateGallery();
+    updateProgress();
+    showToast('💾 Project "' + name + '" saved!');
+    
+  } catch(error) {
+    showToast('❌ ' + error.message);
+  }
+}
+
+// ===== GENERATE VIDEO =====
+function generateVideo() {
+  var prompt = document.getElementById('v-prompt').value;
+  if(!prompt) { showToast('Please write a prompt first!'); return; }
+  
+  if(videoCount >= videoLimit && currentPlan === 'free') {
+    showToast('⚠️ Free limit reached! Upgrade to Pro.');
+    showUpgrade();
+    return;
+  }
+  
+  showToast('⚡ Video generation starting... (Connect Runway API for real videos)');
+  setTimeout(function() {
+    showToast('✅ Video generated! Click Save to store it.');
+  }, 2000);
+}
+
+// ===== GALLERY (Fetch from Supabase) =====
+async function updateGallery() {
+  if(!currentUser) return;
+  
+  var container = document.getElementById('gallery-container');
+  var empty = document.getElementById('empty-gallery');
+  
+  try {
+    const { data, error } = await supabase
+      .from('videos')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false });
+    
+    if(error) { console.error('Gallery error:', error); return; }
+    
+    if(!data || data.length === 0) {
+      container.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    
+    empty.style.display = 'none';
+    
+    container.innerHTML = data.map(function(p) {
+      var date = new Date(p.created_at).toLocaleDateString();
+      return `
+        <div class="gallery-item">
+          <div class="video-icon">🎬</div>
+          <div class="video-name">${p.name}</div>
+          <div style="font-size:11px;color:var(--muted);margin:4px 0">${p.style} · ${p.voice}</div>
+          <div class="video-date">${date}</div>
+          <button class="btn-ghost" style="margin-top:8px;padding:4px 12px;font-size:11px" onclick="deleteProject('${p.id}')">🗑️</button>
+        </div>
+      `;
+    }).join('');
+    
+  } catch(error) {
+    console.error('Gallery error:', error);
+  }
+}
+
+async function deleteProject(id) {
+  if(!confirm('Delete this video?')) return;
+  
+  try {
+    const { error } = await supabase
+      .from('videos')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', currentUser.id);
+    
+    if(error) { showToast('❌ ' + error.message); return; }
+    
+    videoCount = Math.max(0, videoCount - 1);
+    await supabase.from('users')
+      .update({ videos_used: videoCount })
+      .eq('id', currentUser.id);
+    
+    updateGallery();
+    updateDashboard();
+    updateProgress();
+    showToast('🗑️ Project deleted');
+    
+  } catch(error) {
+    showToast('❌ ' + error.message);
+  }
+}
+
+// ===== UPGRADE =====
+function showUpgrade() {
+  document.getElementById('upgrade-modal').style.display = 'flex';
+}
+
+function closeUpgrade() {
+  document.getElementById('upgrade-modal').style.display = 'none';
+}
+
+function upgradePlan() {
+  showToast('🚀 Redirecting to Stripe checkout...');
+  closeUpgrade();
+  // In production: Redirect to Stripe Checkout
+  // window.location.href = '/api/create-checkout?plan=pro';
+}
+
+// ===== EXPORT DATA =====
+function exportData() {
+  var data = {
+    user: currentUser,
+    plan: currentPlan,
+    videos_used: videoCount,
+    exportedAt: new Date().toISOString()
+  };
+  
+  var blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'fjpro-data-export.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('📥 Data exported successfully!');
+}
+
+// ===== CONFIRM DELETE =====
+function confirmDelete() {
+  if(confirm('⚠️ Permanently delete account & all data?')) {
+    showToast('🗑️ Account deletion requested');
+    // In production: Delete from Supabase
+    setTimeout(doLogout, 1000);
+  }
+}
+
+// ===== PREFERENCES =====
+function savePreference(key, value) {
+  localStorage.setItem('pref_' + key, JSON.stringify(value));
+}
+
+function getPreference(key, defaultVal) {
+  var val = localStorage.getItem('pref_' + key);
+  return val ? JSON.parse(val) : defaultVal;
+}
+
+function saveAPIKey(service, key) {
+  localStorage.setItem('api_' + service, key);
+  showToast('🔑 ' + service + ' key saved!');
+}
+
 function loadPreferences() {
   // Dark mode
   var dark = getPreference('darkMode', true);
@@ -497,17 +770,10 @@ function loadPreferences() {
   document.getElementById('default-lang').value = lang;
   
   // API keys
-  document.getElementById('runway-key').value = getAPIKey('runway');
-  document.getElementById('eleven-key').value = getAPIKey('eleven');
-  document.getElementById('supabase-url').value = getPreference('supabaseUrl', '');
-  document.getElementById('supabase-key').value = getPreference('supabaseKey', '');
-  
-  // Auto 4K
-  var auto4k = getPreference('auto4k', false);
-  if(auto4k) document.querySelector('#page-settings .toggle').classList.add('on');
+  document.getElementById('runway-key').value = localStorage.getItem('api_runway') || '';
+  document.getElementById('eleven-key').value = localStorage.getItem('api_eleven') || '';
 }
 
-// ===== DARK MODE TOGGLE =====
 function toggleDarkMode() {
   var toggle = document.getElementById('dark-toggle');
   toggle.classList.toggle('on');
@@ -547,175 +813,34 @@ function showPage(name){
   if(nav) nav.classList.add('active');
   localStorage.setItem('currentPage', name);
   
-  // Update gallery when navigating to it
   if(name === 'gallery') updateGallery();
   if(name === 'dashboard') updateDashboard();
 }
 
-// ===== CHIPS (Single Selection) =====
+// ===== CHIPS =====
 function selectChip(el){
   el.parentElement.querySelectorAll('.chip').forEach(function(c){c.classList.remove('on')});
   el.classList.add('on');
   updatePreview();
 }
 
-// ===== CHIPS (Multiple Selection - NEW) =====
 function toggleMultiChip(el){
   el.classList.toggle('on');
   el.classList.toggle('multi');
   updatePreview();
 }
 
-// ===== UPDATE PREVIEW =====
 function updatePreview() {
-  // Styles
   var styles = document.querySelectorAll('#style-chips .chip.on');
   var styleTexts = Array.from(styles).map(c => c.textContent.trim()).join(' + ');
   document.getElementById('preview-style').textContent = styleTexts || 'None selected';
   
-  // Voices
   var voices = document.querySelectorAll('#lang-chips .chip.on');
   var voiceTexts = Array.from(voices).map(c => c.textContent.trim()).join(' + ');
   document.getElementById('preview-voice').textContent = voiceTexts || 'None selected';
   
-  // Resolution
   var res = document.querySelector('#page-create .chips .chip.on:not(.multi)');
   document.getElementById('preview-res').textContent = res ? res.textContent.trim() : '1080p';
-}
-
-// ===== SAVE PROJECT (with LocalStorage) =====
-function saveProject() {
-  var name = document.getElementById('v-name').value || 'Untitled';
-  var prompt = document.getElementById('v-prompt').value || 'No prompt';
-  
-  var styles = document.querySelectorAll('#style-chips .chip.on');
-  var style = Array.from(styles).map(c => c.textContent.trim()).join(', ');
-  
-  var voices = document.querySelectorAll('#lang-chips .chip.on');
-  var voice = Array.from(voices).map(c => c.textContent.trim()).join(', ');
-  
-  var res = document.querySelector('#page-create .chips .chip.on:not(.multi)');
-  var resolution = res ? res.textContent.trim() : '1080p';
-  
-  var project = {
-    id: Date.now(),
-    name: name,
-    prompt: prompt,
-    style: style || 'Cartoon',
-    voice: voice || 'Urdu',
-    resolution: resolution,
-    date: new Date().toLocaleDateString(),
-    thumbnail: '🎬'
-  };
-  
-  projects.push(project);
-  localStorage.setItem('projects', JSON.stringify(projects));
-  videoCount = projects.length;
-  
-  updateGallery();
-  updateDashboard();
-  showToast('💾 Project "' + name + '" saved!');
-}
-
-// ===== GENERATE VIDEO =====
-function generateVideo() {
-  var prompt = document.getElementById('v-prompt').value;
-  if(!prompt) { showToast('Please write a prompt first!'); return; }
-  
-  showToast('⚡ Video generation starting... (Connect Runway API for real videos)');
-  // In real app: Call Runway/Pika API here
-  setTimeout(function() {
-    showToast('✅ Video generated! Save it to gallery.');
-  }, 2000);
-}
-
-// ===== GALLERY =====
-function updateGallery() {
-  var container = document.getElementById('gallery-container');
-  var empty = document.getElementById('empty-gallery');
-  
-  projects = JSON.parse(localStorage.getItem('projects')) || [];
-  
-  if(projects.length === 0) {
-    container.innerHTML = '';
-    empty.style.display = 'block';
-    return;
-  }
-  empty.style.display = 'none';
-  
-  container.innerHTML = projects.map(function(p) {
-    return `
-      <div class="gallery-item">
-        <div class="video-icon">${p.thumbnail || '🎬'}</div>
-        <div class="video-name">${p.name}</div>
-        <div style="font-size:11px;color:var(--muted);margin:4px 0">${p.style} · ${p.voice}</div>
-        <div class="video-date">${p.date}</div>
-        <button class="btn-ghost" style="margin-top:8px;padding:4px 12px;font-size:11px" onclick="deleteProject(${p.id})">🗑️</button>
-      </div>
-    `;
-  }).join('');
-}
-
-function deleteProject(id) {
-  if(!confirm('Delete this video?')) return;
-  projects = projects.filter(function(p) { return p.id !== id; });
-  localStorage.setItem('projects', JSON.stringify(projects));
-  videoCount = projects.length;
-  updateGallery();
-  updateDashboard();
-  showToast('🗑️ Project deleted');
-}
-
-// ===== DASHBOARD UPDATE =====
-function updateDashboard() {
-  projects = JSON.parse(localStorage.getItem('projects')) || [];
-  document.getElementById('project-count').textContent = projects.length + ' projects saved.';
-  document.getElementById('gallery-count').textContent = projects.length + ' videos in gallery';
-  
-  // Update progress
-  var used = projects.length;
-  var total = 100;
-  var percent = Math.min((used / total) * 100, 100);
-  document.getElementById('progress-fill').style.width = percent + '%';
-  document.getElementById('progress-text').textContent = 
-    used + ' / ' + total + ' videos used (' + Math.round(percent) + '%)';
-}
-
-// ===== EXPORT DATA (GDPR) =====
-function exportData() {
-  var data = {
-    user: currentUser,
-    projects: projects,
-    preferences: {
-      darkMode: getPreference('darkMode', true),
-      auto4k: getPreference('auto4k', false),
-      defaultLang: getPreference('defaultLang', 'en'),
-      safetyFilter: getPreference('safetyFilter', true)
-    },
-    exportedAt: new Date().toISOString()
-  };
-  
-  var blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = 'fjpro-data-export.json';
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('📥 Data exported successfully!');
-}
-
-// ===== CONFIRM DELETE =====
-function confirmDelete() {
-  if(confirm('⚠️ Permanently delete account & all data?')) {
-    localStorage.clear();
-    projects = [];
-    videoCount = 0;
-    updateGallery();
-    updateDashboard();
-    showToast('🗑️ Account deletion requested');
-    setTimeout(doLogout, 1000);
-  }
 }
 
 // ===== TOAST =====
@@ -729,37 +854,56 @@ function showToast(msg){
 
 // ===== KEYBOARD SHORTCUTS =====
 document.addEventListener('keydown', function(e) {
-  // Ctrl+S = Save
   if(e.ctrlKey && e.key === 's') {
     e.preventDefault();
     saveProject();
   }
-  // Ctrl+1,2,3,4 = Navigation
   if(e.ctrlKey && ['1','2','3','4'].includes(e.key)) {
     e.preventDefault();
     var pages = ['dashboard','create','gallery','settings'];
     showPage(pages[parseInt(e.key)-1]);
   }
+  if(e.key === 'Escape') {
+    closeUpgrade();
+  }
 });
 
-// ===== AUTO-LOGIN ON LOAD =====
+// ===== AUTO-LOGIN =====
 window.onload = function() {
   var loggedIn = localStorage.getItem('isLoggedIn');
   if(loggedIn === 'true') {
-    currentUser = localStorage.getItem('userEmail') || '';
-    document.getElementById('user-email').textContent = currentUser;
-    document.getElementById('page-login').classList.remove('active');
-    document.getElementById('page-app').classList.add('active');
-    var lastPage = localStorage.getItem('currentPage') || 'dashboard';
-    showPage(lastPage);
-    loadPreferences();
-    updateGallery();
-    updateDashboard();
+    var userId = localStorage.getItem('userId');
+    if(userId) {
+      // Auto-login with session
+      supabase.auth.getSession().then(({ data, error }) => {
+        if(data.session) {
+          currentUser = data.session.user;
+          document.getElementById('user-email').textContent = currentUser.email;
+          document.getElementById('page-login').classList.remove('active');
+          document.getElementById('page-app').classList.add('active');
+          var lastPage = localStorage.getItem('currentPage') || 'dashboard';
+          showPage(lastPage);
+          loadPreferences();
+          // Fetch user data
+          supabase.from('users').select('*').eq('id', currentUser.id).single()
+            .then(({ data }) => {
+              if(data) {
+                currentPlan = data.plan || 'free';
+                videoLimit = data.videos_limit || 10;
+                videoCount = data.videos_used || 0;
+                updateDashboard();
+                updateGallery();
+                updateProgress();
+              }
+            });
+        } else {
+          localStorage.setItem('isLoggedIn', 'false');
+        }
+      });
+    }
   }
+  updatePreview();
 };
-
-// ===== INITIAL PREVIEW =====
-updatePreview();
 </script>
 </body>
 </html>
