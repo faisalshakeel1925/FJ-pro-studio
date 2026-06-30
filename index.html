@@ -3,6 +3,311 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FJ Pro AI Studio</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+  </script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    :root {
+      --bg: #08090f;
+      --surface: #10121c;
+      --card: #161925;
+      --border: #232640;
+      --violet: #7c5cfc;
+      --violet2: #a78bfa;
+      --amber: #f59e0b;
+      --text: #e8eaf0;
+      --muted: #6b7280;
+      --danger: #ef4444;
+      --success: #10b981;
+      --grad: linear-gradient(135deg, #7c5cfc, #a78bfa, #f59e0b);
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+    }
+    .page {
+      display: none;
+      min-height: 100vh;
+    }
+    .page.active {
+      display: block;
+    }
+    .hidden {
+      display: none !important;
+    }
+
+    /* ===== LOGIN ===== */
+    .login-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: radial-gradient(ellipse at 60% 20%, #1a1040, #08090f);
+    }
+    .login-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      width: 100%;
+      max-width: 420px;
+    }
+    .logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .logo h1 {
+      font-size: 28px;
+      font-weight: 900;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .logo p {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+    .field {
+      margin-bottom: 16px;
+    }
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .field input {
+      width: 100%;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: var(--text);
+      font-size: 15px;
+      outline: none;
+    }
+    .field input:focus {
+      border-color: var(--violet);
+    }
+    .btn-full {
+      width: 100%;
+      padding: 13px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-full.primary {
+      background: var(--grad);
+      color: #fff;
+    }
+    .btn-full.primary:hover {
+      opacity: 0.9;
+    }
+    .btn-full.ghost {
+      background: transparent;
+      border: 1.5px solid var(--border);
+      color: var(--violet2);
+      margin-top: 10px;
+    }
+    .divider {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      margin: 14px 0;
+    }
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: var(--success);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 9999;
+      animation: slideUp 0.3s;
+    }
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== LOGIN ===== -->
+  <div class="page active" id="page-login">
+    <div class="login-wrap">
+      <div class="login-box">
+        <div class="logo">
+          <h1>FJ Pro AI Studio</h1>
+          <p>Global AI Video Creator</p>
+        </div>
+        <div id="signup-name" class="field hidden">
+          <label>Full Name</label>
+          <input type="text" id="input-name" placeholder="Enter your name">
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="input-email" placeholder="email@example.com">
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="input-password" placeholder="••••••••">
+        </div>
+        <button class="btn-full primary" onclick="doLogin()">🔐 Login</button>
+        <div class="divider">— or —</div>
+        <button class="btn-full ghost" onclick="toggleAuthMode()">Create Account →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== APP ===== -->
+  <div class="page" id="page-app">
+    <div style="padding: 40px; text-align: center;">
+      <h1>🎬 FJ Pro AI Studio</h1>
+      <p style="color: var(--muted);">App loaded successfully!</p>
+      <button onclick="doLogout()" style="margin-top: 20px; padding: 10px 20px; background: var(--danger); color: #fff; border: none; border-radius: 8px; cursor: pointer;">Logout</button>
+    </div>
+  </div>
+
+  <!-- ===== TOAST ===== -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script>
+    // ===== SUPABASE CONFIG (FIXED) =====
+    const SUPABASE_URL = 'https://enziugrpiknqyohlypsz.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVueml1Z3JwaWtucXlvaGx5cHN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3MjU3OTMsImV4cCI6MjA5ODMwMTc5M30.hRrbmTf6bdyO1dSkwRYbZ_UAasPNt9wGohEw_2BsXeU';
+
+    // ✅ FIXED: supabase object direct use
+    var supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ===== STATE =====
+    var authMode = 'login';
+
+    // ===== TOGGLE AUTH MODE =====
+    function toggleAuthMode() {
+      authMode = authMode === 'login' ? 'signup' : 'login';
+      var nf = document.getElementById('signup-name');
+      var btn = document.querySelector('.btn-full.primary');
+      var gbtn = document.querySelector('.btn-full.ghost');
+      if (authMode === 'signup') {
+        nf.classList.remove('hidden');
+        btn.textContent = '✨ Create Account';
+        gbtn.textContent = '← Back to Login';
+      } else {
+        nf.classList.add('hidden');
+        btn.textContent = '🔐 Login';
+        gbtn.textContent = 'Create Account →';
+      }
+    }
+
+    // ===== LOGIN / SIGNUP =====
+    async function doLogin() {
+      var email = document.getElementById('input-email').value;
+      var password = document.getElementById('input-password').value;
+
+      if (!email || !password) {
+        showToast('❌ Please enter email and password');
+        return;
+      }
+
+      try {
+        var result;
+        if (authMode === 'signup') {
+          var name = document.getElementById('input-name').value || 'User';
+          result = await supabase.auth.signUp({
+            email: email,
+            password: password,
+            options: {
+              data: { full_name: name }
+            }
+          });
+        } else {
+          result = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password
+          });
+        }
+
+        if (result.error) {
+          showToast('❌ ' + result.error.message);
+          return;
+        }
+
+        var user = result.data.user;
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userId', user.id);
+
+        // ✅ Page switch
+        document.getElementById('page-login').classList.remove('active');
+        document.getElementById('page-app').classList.add('active');
+
+        showToast('✅ Welcome to FJ Pro!');
+
+      } catch (error) {
+        showToast('❌ ' + error.message);
+      }
+    }
+
+    // ===== LOGOUT =====
+    function doLogout() {
+      supabase.auth.signOut();
+      localStorage.setItem('isLoggedIn', 'false');
+      document.getElementById('page-app').classList.remove('active');
+      document.getElementById('page-login').classList.add('active');
+      showToast('Logged out');
+    }
+
+    // ===== TOAST =====
+    function showToast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.remove('hidden');
+      clearTimeout(t._timeout);
+      t._timeout = setTimeout(function() {
+        t.classList.add('hidden');
+      }, 5000);
+    }
+
+    // ===== AUTO-LOGIN =====
+    window.onload = function() {
+      var loggedIn = localStorage.getItem('isLoggedIn');
+      if (loggedIn === 'true') {
+        document.getElementById('page-login').classList.remove('active');
+        document.getElementById('page-app').classList.add('active');
+        showToast('✅ Auto-login successful!');
+      }
+    };
+  </script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FJ Pro AI Studio - Global AI Video Creator</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
